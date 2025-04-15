@@ -2,6 +2,7 @@
 #include "Vector3.h"
 #include <Novice.h>
 
+
 const char kWindowTitle[] = "LE2B_23_ミハラ_ユウタ_タイトル";
 
 // Windowsアプリでのエントリーポイント(main関数)
