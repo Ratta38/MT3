@@ -6,33 +6,36 @@ public:
 	Math();
 
 	/// <summary>
-	/// 行列同士の加算
+	/// 平行移動行列
 	/// </summary>
-	/// <param name="m1">行列1</param>
-	/// <param name="m2">行列2</param>
-	/// <returns>加算結果</returns>
-	static Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2);
+	/// <param name="translate">座標</param>
+	/// <returns>平行移動行列</returns>
+	static Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
 
 	/// <summary>
-	/// 行列同士の減算
+	/// 拡大縮小行列
 	/// </summary>
-	/// <param name="m1">行列1</param>
-	/// <param name="m2">行列2</param>
-	/// <returns>減算結果</returns>
-	static Matrix4x4 Subtract(const Matrix4x4& m1, const Matrix4x4& m2);
+	/// <param name="scale">大きさ</param>
+	/// <returns>拡大縮小行列</returns>
+	static Matrix4x4 MakeScaleMatrix(const Vector3& scale);
 
 	/// <summary>
-	/// 転置行列
+	/// スクリーン座標系へ変換
 	/// </summary>
-	/// <param name="m">行列</param>
-	/// <returns>転置行列</returns>
-	static Matrix4x4 Transpose(const Matrix4x4& m);
+	/// <param name="vector">ベクトル</param>
+	/// <param name="matrix">行列</param>
+	/// <returns>変換後の座標</returns>
+	static Vector3 Transform(Vector3& vector, Matrix4x4& matrix);
 
 	/// <summary>
-	/// 単位行列の作成
+	/// 3次元ベクトルの数値表示
 	/// </summary>
-	/// <returns>単位行列</returns>
-	static Matrix4x4 MakeIdentity4x4();
+	/// <param name="x">座標 X</param>
+	/// <param name="y">座標 Y</param>
+	/// <param name="vector">ベクトル</param>
+	/// <param name="label">使用した関数名</param>
+	static void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label);
+
 
 	/// <summary>
 	/// 行列の値を表示
@@ -42,25 +45,7 @@ public:
 	/// <param name="matrix">行列</param>
 	/// <param name="label">関数名</param>
 	static void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label);
-
-	/// <summary>
-	/// 行列同士の積を求める
-	/// </summary>
-	/// <param name="matrix1">行列1</param>
-	/// <param name="matrix2">行列2</param>
-	/// <returns></returns>
-	static Matrix4x4 Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
-
-	/// <summary>
-	/// 逆行列
-	/// </summary>
-	/// <param name="matrix">行列</param>
-	/// <returns>逆行列</returns>
-	static Matrix4x4 Inverse(const Matrix4x4& matrix);
-
 public:
 	static const int kColumnWidth = 60;
-
-private:
 	static const int kRowHeight = 20;
 };
