@@ -6,15 +6,15 @@ public:
 	Math();
 
 	/// <summary>
-	/// 
+	/// 正射影行列
 	/// </summary>
-	/// <param name="left"></param>
-	/// <param name="right"></param>
-	/// <param name="top"></param>
-	/// <param name="bottom"></param>
-	/// <param name=""></param>
-	/// <param name=""></param>
-	/// <returns></returns>
+	/// <param name="left">左端</param>
+	/// <param name="right">右端</param>
+	/// <param name="top">上端</param>
+	/// <param name="bottom">下端</param>
+	/// <param name="nearClip">近平面への距離</param>
+	/// <param name="farClip">遠平面への距離</param>
+	/// <returns>正規化デバイス座標系</returns>
 	static Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 
 	/// <summary>
