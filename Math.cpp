@@ -4,46 +4,51 @@
 #include <cmath>
 Math::Math() {}
 
-Matrix4x4 Math::MakeScaleMatrix(const Vector3& scale) {
-	Matrix4x4 result = {};
-	result.m[0][0] = scale.x;
-	result.m[1][1] = scale.y;
-	result.m[2][2] = scale.z;
-	result.m[3][3] = 1.0f;
-	return result;
-}
-
-Matrix4x4 Math::MakeTranslateMatrix(const Vector3& translate) {
+Matrix4x4 Math::MakePitchRotateMatrix(float radian) {
 	Matrix4x4 result = {};
 	result.m[0][0] = 1.0f;
+	result.m[1][1] = std::cosf(radian);
+	result.m[1][2] = std::sinf(radian);
+	result.m[2][1] = -std::sinf(radian);
+	result.m[2][2] = std::cosf(radian);
+	result.m[3][3] = 1.0f;
+	return result;
+}
+
+Matrix4x4 Math::MakeYawRotateMatrix(float radian) {
+	Matrix4x4 result = {};
+	result.m[0][0] = std::cosf(radian);
+	result.m[0][2] = -std::sinf(radian);
 	result.m[1][1] = 1.0f;
+	result.m[2][0] = std::sinf(radian);
+	result.m[2][2] = std::cosf(radian);
+	result.m[3][3] = 1.0f;
+	return result;
+}
+
+Matrix4x4 Math::MakeRollRotateMatrix(float radian) {
+	Matrix4x4 result = {};
+	result.m[0][0] = std::cosf(radian);
+	result.m[0][1] = std::sinf(radian);
+	result.m[1][0] = -std::sinf(radian);
+	result.m[1][1] = std::cosf(radian);
 	result.m[2][2] = 1.0f;
 	result.m[3][3] = 1.0f;
-	result.m[3][0] = translate.x;
-	result.m[3][1] = translate.y;
-	result.m[3][2] = translate.z;
 	return result;
 }
 
-Vector3 Math::Transform(Vector3& vector, Matrix4x4& matrix) {
-	Vector3 result = {0};
-	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
-	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
-	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + 1.0f * matrix.m[3][2];
-	float w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + 1.0f * matrix.m[3][3];
-	assert(w != 0.0f);
-	result.x /= w;
-	result.y /= w;
-	result.z /= w;
+Matrix4x4 Math::Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
+	Matrix4x4 result = {0};
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			for (int k = 0; k < 4; k++) {
+				result.m[i][j] += matrix1.m[i][k] * matrix2.m[k][j];
+			}
+		}
+	}
 	return result;
 }
 
-void Math::VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) {
-	Novice::ScreenPrintf(x, y, "%.02f", vector.x);
-	Novice::ScreenPrintf(x + kColumnWidth, y, "%.02f", vector.y);
-	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%.02f", vector.z);
-	Novice::ScreenPrintf(x + kColumnWidth * 3, y, "%s", label);
-}
 
 void Math::MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
 	Novice::ScreenPrintf(x, y, "%s", label);
