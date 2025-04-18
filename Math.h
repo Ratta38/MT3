@@ -6,42 +6,39 @@ public:
 	Math();
 
 	/// <summary>
-	/// X軸周りの回転行列
+	/// 
 	/// </summary>
-	/// <param name="theta">角度X</param>
-	/// <returns>X軸周りの回転行列</returns>
-	static Matrix4x4 MakePitchRotateMatrix(float radian);
-
-	/// <summary>
-	/// Y軸周りの回転行列
-	/// </summary>
-	/// <param name="theta">角度Y</param>
-	/// <returns>Y軸周りの回転行列</returns>
-	static Matrix4x4 MakeYawRotateMatrix(float radian);
-
-	/// <summary>
-	/// Z軸周りの回転行列
-	/// </summary>
-	/// <param name="theta">角度Z</param>
-	/// <returns>Z軸周りの回転行列</returns>
-	static Matrix4x4 MakeRollRotateMatrix(float radian);
-
-	/// <summary>
-	/// 行列同士の積を求める
-	/// </summary>
-	/// <param name="matrix1">行列1</param>
-	/// <param name="matrix2">行列2</param>
+	/// <param name="left"></param>
+	/// <param name="right"></param>
+	/// <param name="top"></param>
+	/// <param name="bottom"></param>
+	/// <param name=""></param>
+	/// <param name=""></param>
 	/// <returns></returns>
-	static Matrix4x4 Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
+	static Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 
 	/// <summary>
-	/// アフィン行列
+	/// 透視投影行列（同次クリップへの変換）
 	/// </summary>
-	/// <param name="scale">大きさ</param>
-	/// <param name="rotate">角度</param>
-	/// <param name="translate">座標</param>
-	/// <returns>アフィン行列</returns>
-	static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+	/// <param name="fovY">画角Y</param>
+	/// <param name="aspectRatio">アスペクト比</param>
+	/// <param name="nearClip">近平面への距離</param>
+	/// <param name="farClip">遠平面への距離</param>
+	/// <returns>正規化デバイス座標系</returns>
+	static Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
+
+	/// <summary>
+	/// ビューポート変換（スクリーン座標系への変換）
+	/// </summary>
+	/// <param name="left">左</param>
+	/// <param name="top">上</param>
+	/// <param name="width">横幅</param>
+	/// <param name="height">縦幅</param>
+	/// <param name="minD">最小深度値</param>
+	/// <param name="maxD">最大深度値</param>
+	/// <returns>スクリーン座標系</returns>
+	static Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minD, float maxD);
+
 
 	/// <summary>
 	/// 行列の値を表示
