@@ -49,6 +49,27 @@ Matrix4x4 Math::Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
 	return result;
 }
 
+Matrix4x4 Math::MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
+	Matrix4x4 result = Multiply(MakePitchRotateMatrix(rotate.x), Multiply(MakeYawRotateMatrix(rotate.y), MakeRollRotateMatrix(rotate.z)));
+
+	result.m[0][0] *= scale.x;
+	result.m[0][1] *= scale.x;
+	result.m[0][2] *= scale.x;
+
+	result.m[1][0] *= scale.y;
+	result.m[1][1] *= scale.y;
+	result.m[1][2] *= scale.y;
+
+	result.m[2][0] *= scale.z;
+	result.m[2][1] *= scale.z;
+	result.m[2][2] *= scale.z;
+
+	result.m[3][0] = translate.x;
+	result.m[3][1] = translate.y;
+	result.m[3][2] = translate.z;
+
+	return result;
+}
 
 void Math::MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
 	Novice::ScreenPrintf(x, y, "%s", label);

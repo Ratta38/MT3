@@ -35,6 +35,15 @@ public:
 	static Matrix4x4 Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
 
 	/// <summary>
+	/// アフィン行列
+	/// </summary>
+	/// <param name="scale">大きさ</param>
+	/// <param name="rotate">角度</param>
+	/// <param name="translate">座標</param>
+	/// <returns>アフィン行列</returns>
+	static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+
+	/// <summary>
 	/// 行列の値を表示
 	/// </summary>
 	/// <param name="x">座標 X</param>
