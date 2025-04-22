@@ -1,4 +1,8 @@
-#include "Shape.h"
+﻿#include "Shape.h"
+#include "Math.h"
+#include "Vector3.h"
+#include <numbers>
+#include <cmath>
 
 Shape::Shape() {}
 
@@ -29,4 +33,95 @@ void Shape::DrawSprite(float x, float y, int textureHandle, float scaleX, float 
 void Shape::DrawSpriteRect(float destX, float destY, float srcX, float srcY, float srcW, float srcH, int textureHandle, float scaleX, float scaleY, float angle, unsigned int color) {
 	Novice::DrawSpriteRect(
 	    static_cast<int>(destX), static_cast<int>(destY), static_cast<int>(srcX), static_cast<int>(srcY), static_cast<int>(srcW), static_cast<int>(srcH), textureHandle, scaleX, scaleY, angle, color);
+}
+
+void Shape::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
+	const float kGridHalfWidth = 2.0f;                                                   // Gridの半分の幅
+	const uint32_t kSubdivision = 10;                                                    // 分割数
+	const float kGridEvery = (kGridHalfWidth + 2.0f) / static_cast<float>(kSubdivision); // 1つ分の長さ
+
+	Vector3 worldVerticles[2];
+	Vector3 screenVerticles[2];
+	Vector3 ndcVertex;
+
+	// 奥から手前への線を順々に引いていく
+	for (uint32_t xIndex = 0; xIndex <= kSubdivision; ++xIndex) {
+		// 上の情報を使ってワールド座標系上の始点と終点を求める
+		// スクリーン座標系まで変換をかける
+		// 変換した座標を使って表示、色は灰色(0xAAAAAAFF)、原点は黒ぐらいが良いが、何でもいい
+		worldVerticles[0] = {xIndex * kGridEvery - kGridHalfWidth, 0.0f, kGridHalfWidth};
+		worldVerticles[1] = {xIndex * kGridEvery - kGridHalfWidth, 0.0f, -kGridHalfWidth};
+
+		for (uint32_t i = 0; i < 2; ++i) {
+			ndcVertex = Math::Transform(worldVerticles[i], viewProjectionMatrix);
+			screenVerticles[i] = Math::Transform(ndcVertex, viewportMatrix);
+		}
+
+		if (xIndex * kGridEvery - kGridHalfWidth == 0.0f) {
+			DrawLine(screenVerticles[0].x, screenVerticles[0].y, screenVerticles[1].x, screenVerticles[1].y, 0x000000FF);
+		} else {
+			DrawLine(screenVerticles[0].x, screenVerticles[0].y, screenVerticles[1].x, screenVerticles[1].y, 0xAAAAAAFF);
+		}
+	}
+
+	for (uint32_t zIndex = 0; zIndex <= kSubdivision; ++zIndex) {
+		worldVerticles[0] = {kGridHalfWidth, 0.0f, zIndex * kGridEvery - kGridHalfWidth};
+		worldVerticles[1] = {-kGridHalfWidth, 0.0f, zIndex * kGridEvery - kGridHalfWidth};
+
+		for (uint32_t i = 0; i < 2; ++i) {
+			ndcVertex = Math::Transform(worldVerticles[i], viewProjectionMatrix);
+			screenVerticles[i] = Math::Transform(ndcVertex, viewportMatrix);
+		}
+
+		if (zIndex * kGridEvery - kGridHalfWidth == 0.0f) {
+			DrawLine(screenVerticles[0].x, screenVerticles[0].y, screenVerticles[1].x, screenVerticles[1].y, 0x000000FF);
+		} else {
+			DrawLine(screenVerticles[0].x, screenVerticles[0].y, screenVerticles[1].x, screenVerticles[1].y, 0xAAAAAAFF);
+		}
+	}
+}
+
+void Shape::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	const uint32_t kSubdivision = 16;
+	const float kLonEvery = 2.0f * static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision);
+	const float kLatEvery = static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision);
+	// 緯度の方向に分割 -π/2 ~ π/2
+	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+		float lat = -static_cast<float>(std::numbers::pi) / 2.0f + kLatEvery * latIndex; // 現在の緯度
+		// 経度の方向に分割 0 ~ 2π
+		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+			float lon = lonIndex * kLonEvery; // 現在の経度
+			// world座標系でのa,b,cを求める
+			Vector3 a, b, c;
+			a = {sphere.radius * std::cosf(lat) * std::cosf(lon), 
+				sphere.radius * std::sinf(lat), 
+				sphere.radius * std::cosf(lat) * std::sinf(lon)};
+
+			a = Math::Add(a, sphere.center);
+
+			b = {sphere.radius * std::cosf(lat + kLatEvery) * std::cosf(lon), 
+				sphere.radius * std::sinf(lat + kLatEvery), 
+				sphere.radius * std::cosf(lat + kLatEvery) * std::sinf(lon)};
+
+			b = Math::Add(b, sphere.center);
+
+			c = {sphere.radius * std::cosf(lat) * std::cosf(lon + kLonEvery), 
+				sphere.radius * std::sinf(lat), 
+				sphere.radius * std::cosf(lat) * std::sinf(lon + kLonEvery)};
+
+			c = Math::Add(c, sphere.center);
+
+			// a,b,cをScreen座標系で参照...
+			a = Math::Transform(a, viewProjectionMatrix);
+			a = Math::Transform(a, viewportMatrix);
+			b = Math::Transform(b, viewProjectionMatrix);
+			b = Math::Transform(b, viewportMatrix);
+			c = Math::Transform(c, viewProjectionMatrix);
+			c = Math::Transform(c, viewportMatrix);
+
+			// ab,bcで線を引く
+			DrawLine(a.x, a.y, b.x, b.y, color);
+			DrawLine(c.x, c.y, a.x, a.y, color);
+		}
+	}
 }

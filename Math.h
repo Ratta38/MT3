@@ -6,6 +6,52 @@ public:
 	Math();
 
 	/// <summary>
+	/// ベクトルの加算
+	/// </summary>
+	/// <param name="v1">ベクトル1</param>
+	/// <param name="v2">ベクトル2</param>
+	/// <returns>加算結果</returns>
+	static Vector3 Add(const Vector3& v1, const Vector3& v2);
+
+	/// <summary>
+	/// ベクトルの減算
+	/// </summary>
+	/// <param name="v1">ベクトル1</param>
+	/// <param name="v2">ベクトル2</param>
+	/// <returns>減算結果</returns>
+	static Vector3 Subtract(const Vector3& v1, const Vector3& v2);
+
+	/// <summary>
+	/// ベクトルのスカラー倍
+	/// </summary>
+	/// <param name="scalar">スカラー</param>
+	/// <param name="v">ベクトル</param>
+	/// <returns>スカラー倍した値</returns>
+	static Vector3 Multiply(float scalar, const Vector3& v);
+
+	/// <summary>
+	/// ベクトルの内積
+	/// </summary>
+	/// <param name="v1">ベクトル1</param>
+	/// <param name="v2">ベクトル2</param>
+	/// <returns>内積</returns>
+	static float Dot(const Vector3& v1, const Vector3& v2);
+
+	/// <summary>
+	/// ベクトルの長さ
+	/// </summary>
+	/// <param name="v">ベクトル</param>
+	/// <returns>長さ</returns>
+	static float Length(const Vector3& v);
+
+	/// <summary>
+	/// ベクトルの正規化
+	/// </summary>
+	/// <param name="v">ベクトル</param>
+	/// <returns>正規化した値</returns>
+	static Vector3 Normalize(const Vector3& v);
+
+	/// <summary>
 	/// 行列同士の積を求める
 	/// </summary>
 	/// <param name="matrix1">行列1</param>
@@ -56,7 +102,7 @@ public:
 	/// <param name="vector">ベクトル</param>
 	/// <param name="matrix">行列</param>
 	/// <returns>変換後の座標</returns>
-	static Vector3 Transform(Vector3& vector, Matrix4x4& matrix);
+	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
 	/// <summary>
 	/// クロス積を求める関数
@@ -99,25 +145,4 @@ public:
 	/// <param name="maxD">最大深度値</param>
 	/// <returns>スクリーン座標系</returns>
 	static Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minD, float maxD);
-
-	/// <summary>
-	/// 3次元ベクトルの数値表示
-	/// </summary>
-	/// <param name="x">座標 X</param>
-	/// <param name="y">座標 Y</param>
-	/// <param name="vector">ベクトル</param>
-	/// <param name="label">使用した関数名</param>
-	static void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label);
-
-	/// <summary>
-	/// 行列の値を表示
-	/// </summary>
-	/// <param name="x">座標 X</param>
-	/// <param name="y">座標 Y</param>
-	/// <param name="matrix">行列</param>
-	/// <param name="label">関数名</param>
-	static void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label);
-public:
-	static const int kColumnWidth = 60;
-	static const int kRowHeight = 20;
 };

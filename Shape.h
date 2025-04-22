@@ -1,5 +1,8 @@
 #pragma once
 #include <Novice.h>
+#include "Vector3.h"
+#include "Matrix4x4.h"
+#include "Sphere.h"
 class Shape {
 public:
 	Shape();
@@ -96,4 +99,20 @@ public:
 	/// <param name="angle">描画するスプライトの回転角</param>
 	/// <param name="color">描画するスプライトの色</param>
 	static void DrawSpriteRect(float destX, float destY, float srcX, float srcY, float srcW, float srcH, int textureHandle, float scaleX, float scaleY, float angle, unsigned int color);
+
+	/// <summary>
+	/// グリッドの描画をする
+	/// </summary>
+	/// <param name="viewProjectionMatrix">正規化デバイス座標系</param>
+	/// <param name="viewportMatrix">スクリーン座標系</param>
+	static void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix);
+
+	/// <summary>
+	/// 球の描画をする
+	/// </summary>
+	/// <param name="sphere">球</param>
+	/// <param name="viewProjectionMatrix">正規化デバイス座標系</param>
+	/// <param name="viewportMatrix">スクリーン座標系</param>
+	/// <param name="color">球の色</param>
+	static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 };
