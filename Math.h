@@ -6,6 +6,67 @@ public:
 	Math();
 
 	/// <summary>
+	/// 行列同士の積を求める
+	/// </summary>
+	/// <param name="matrix1">行列1</param>
+	/// <param name="matrix2">行列2</param>
+	/// <returns></returns>
+	static Matrix4x4 Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
+
+	/// <summary>
+	/// X軸周りの回転行列
+	/// </summary>
+	/// <param name="theta">角度X</param>
+	/// <returns>X軸周りの回転行列</returns>
+	static Matrix4x4 MakePitchRotateMatrix(float radian);
+
+	/// <summary>
+	/// Y軸周りの回転行列
+	/// </summary>
+	/// <param name="theta">角度Y</param>
+	/// <returns>Y軸周りの回転行列</returns>
+	static Matrix4x4 MakeYawRotateMatrix(float radian);
+
+	/// <summary>
+	/// Z軸周りの回転行列
+	/// </summary>
+	/// <param name="theta">角度Z</param>
+	/// <returns>Z軸周りの回転行列</returns>
+	static Matrix4x4 MakeRollRotateMatrix(float radian);
+
+	/// <summary>
+	/// アフィン行列
+	/// </summary>
+	/// <param name="scale">大きさ</param>
+	/// <param name="rotate">角度</param>
+	/// <param name="translate">座標</param>
+	/// <returns>アフィン行列</returns>
+	static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+
+	/// <summary>
+	/// 逆行列
+	/// </summary>
+	/// <param name="matrix">行列</param>
+	/// <returns>逆行列</returns>
+	static Matrix4x4 Inverse(const Matrix4x4& matrix);
+
+	/// <summary>
+	/// スクリーン座標系へ変換
+	/// </summary>
+	/// <param name="vector">ベクトル</param>
+	/// <param name="matrix">行列</param>
+	/// <returns>変換後の座標</returns>
+	static Vector3 Transform(Vector3& vector, Matrix4x4& matrix);
+
+	/// <summary>
+	/// クロス積を求める関数
+	/// </summary>
+	/// <param name="v1">ベクトル1</param>
+	/// <param name="v2">ベクトル2</param>
+	/// <returns>クロス積</returns>
+	static Vector3 Cross(const Vector3& v1, const Vector3& v2);
+
+	/// <summary>
 	/// 正射影行列
 	/// </summary>
 	/// <param name="left">左端</param>
@@ -39,6 +100,14 @@ public:
 	/// <returns>スクリーン座標系</returns>
 	static Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minD, float maxD);
 
+	/// <summary>
+	/// 3次元ベクトルの数値表示
+	/// </summary>
+	/// <param name="x">座標 X</param>
+	/// <param name="y">座標 Y</param>
+	/// <param name="vector">ベクトル</param>
+	/// <param name="label">使用した関数名</param>
+	static void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label);
 
 	/// <summary>
 	/// 行列の値を表示
