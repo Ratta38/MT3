@@ -82,9 +82,9 @@ void Shape::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& vie
 }
 
 void Shape::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	const uint32_t kSubdivision = 16;
-	const float kLonEvery = 2.0f * static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision);
-	const float kLatEvery = static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision);
+	const uint32_t kSubdivision = 16; // 分割数
+	const float kLonEvery = 2.0f * static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision); // 軽度分割1つ文の角度
+	const float kLatEvery = static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision); // 緯度分割1つ文の角度
 	// 緯度の方向に分割 -π/2 ~ π/2
 	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
 		float lat = -static_cast<float>(std::numbers::pi) / 2.0f + kLatEvery * latIndex; // 現在の緯度

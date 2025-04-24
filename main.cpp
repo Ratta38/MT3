@@ -18,8 +18,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	Vector3 cameraPosition = {0.0f, 1.0f, -10.0f};
-	Vector3 cameraRotate = {0.0f, 0.0f, 0.0f};
+	Vector3 cameraTranslate = {0.0f, 1.9f, -6.49f};
+	Vector3 cameraRotate = {0.26f, 0.0f, 0.0f};
 
 	Sphere sphere;
 	sphere.center = {0.0f, 0.0f, 0.0f};
@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
-		Matrix4x4 cameraMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraPosition);
+		Matrix4x4 cameraMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Math::Inverse(cameraMatrix);
 		Matrix4x4 projectionMatrix = Math::MakePerspectiveFovMatrix(0.45f, (1280.0f / 720.0f), 0.1f, 100.0f);
 		// WVPMatrixを作る
@@ -49,7 +49,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		// カメラ座標
-		ImGui::DragFloat3("cameraPosition", &cameraPosition.x, 0.01f);
+		ImGui::DragFloat3("cameraPosition", &cameraTranslate.x, 0.01f);
 		// カメラ角度
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f);
 		// 球体の座標
