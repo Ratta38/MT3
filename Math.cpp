@@ -1,4 +1,4 @@
-#include "Math.h"
+﻿#include "Math.h"
 #include <assert.h>
 #include <cmath>
 Math::Math() {}
@@ -294,5 +294,23 @@ Matrix4x4 Math::MakeViewPortMatrix(float left, float top, float width, float hei
 	result.m[3][1] = top + (height / 2);
 	result.m[3][2] = minD;
 	result.m[3][3] = 1.0f;
+	return result;
+}
+
+Vector3 Math::Project(const Vector3& v1, const Vector3& v2) { 
+	Vector3 result = {};
+	float dot = Math::Dot(v1, v2);
+	float length = Math::Length(v2);
+	float scale = dot / (std::powf(length, 2));
+
+	result.x = scale * v2.x;
+	result.y = scale * v2.y;
+	result.z = scale * v2.z;
+	return result;
+}
+
+Vector3 Math::ClosestPoint(const Vector3& point, const Segment& segment) { 
+	Vector3 result = {};
+	result = Add(segment.origin, Project(Subtract(point, segment.origin), segment.diff));
 	return result;
 }

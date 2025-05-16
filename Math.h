@@ -1,6 +1,7 @@
 #pragma once
 #include "Matrix4x4.h"
 #include "Vector3.h"
+#include "Segment.h"
 class Math {
 public:
 	Math();
@@ -145,4 +146,8 @@ public:
 	/// <param name="maxD">最大深度値</param>
 	/// <returns>スクリーン座標系</returns>
 	static Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minD, float maxD);
+
+	static Vector3 Project(const Vector3& v1, const Vector3& v2);
+
+	static Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
 };
