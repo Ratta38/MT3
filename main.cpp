@@ -1,8 +1,9 @@
+#include "Collision.h"
 #include "Math.h"
 #include "Shape.h"
+#include "Sphere.h"
 #include "Vector3.h"
 #include "WindowSize.h"
-#include "Sphere.h"
 #include <Novice.h>
 #include <imgui.h>
 
@@ -18,20 +19,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
+	// カメラ
 	Vector3 cameraTranslate = {0.0f, 1.9f, -6.49f};
 	Vector3 cameraRotate = {0.26f, 0.0f, 0.0f};
 
-	Segment segment{
-	    {-2.0f, -1.0f, 0.0f},
-        {3.0f,  2.0f,  2.0f}
-    };
-	Vector3 point{-1.5f, 0.6f, 0.6f};
+	// 球
+	Sphere sphere[2] = {};
+	sphere[0].center = {0.0f, 0.0f, 0.0f};
+	sphere[0].radius = 1.0f;
+	sphere[0].color = WHITE;
 
-	Vector3 project = Math::Project(Math::Subtract(point, segment.origin), segment.diff);
-	Vector3 closestPoint = Math::ClosestPoint(point, segment);
-
-	Sphere pointSphere{point, 0.01f};// 1cmの球を描画
-	Sphere closestPointSphere{closestPoint, 0.01f};
+	sphere[1].center = {2.0f, 0.0f, 5.0f};
+	sphere[1].radius = 1.0f;
+	sphere[1].color = WHITE;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -46,27 +46,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		// 当たり判定
+		if (Collision::IsCollision(sphere[0], sphere[1])) {
+			sphere[0].color = RED;
+			sphere[1].color = RED;
+		} else {
+			sphere[0].color = WHITE;
+			sphere[1].color = WHITE;
+		}
+
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
 		Matrix4x4 cameraMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Math::Inverse(cameraMatrix);
 		Matrix4x4 projectionMatrix = Math::MakePerspectiveFovMatrix(0.45f, (1280.0f / 720.0f), 0.1f, 100.0f);
-		// WVPMatrixを作る
 		Matrix4x4 viewProjectionMatrix = Math::Multiply(viewMatrix, projectionMatrix);
+		// WVPMatrixを作る
 		Matrix4x4 worldViewProjectionMatrix = Math::Multiply(worldMatrix, viewProjectionMatrix);
 		// ViewportMatrixを作る
 		Matrix4x4 viewportMatrix = Math::MakeViewPortMatrix(0, 0, 1280.0f, 720.0f, 0.0f, 1.0f);
 
 #ifdef _DEBUG
-		// 
-		ImGui::InputFloat3("Point", &point.x);
-		// セグメント始点
-		ImGui::InputFloat3("segment.origin", &segment.origin.x);
-		// セグメント終点への差分ベクトル
-		ImGui::InputFloat3("segment.diff", &segment.diff.x);
-		// 射影ベクトル
-		ImGui::InputFloat3("Project", &project.x);
-
 		ImGui::SliderFloat3("camera.translate", &cameraTranslate.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("sphere[0].translate", &sphere[0].center.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("sphere[1].translate", &sphere[1].center.x, -10.0f, 10.0f);
 #endif // _DEBUG
 
 		///
@@ -78,16 +80,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// グリッド
-		Shape::DrawGrid(viewProjectionMatrix, viewportMatrix);
-
-		// 線分
-		Vector3 start = Math::Transform(Math::Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Math::Transform(Math::Transform(Math::Add(segment.origin,segment.diff),viewProjectionMatrix),viewportMatrix);
-		Shape::DrawLine(start.x,start.y,end.x,end.y,WHITE);
+		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
 		// 球
-		Shape::DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
-		Shape::DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
+		Shape::DrawSphere(sphere[0], worldViewProjectionMatrix, viewportMatrix, sphere[0].color);
+		Shape::DrawSphere(sphere[1], worldViewProjectionMatrix, viewportMatrix, sphere[1].color);
 
 		///
 		/// ↑描画処理ここまで

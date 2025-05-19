@@ -23,6 +23,9 @@
     <Filter Include="WindowSize">
       <UniqueIdentifier>{ff9523ea-5404-43b4-88c6-7b5a1c9caed7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Collision">
+      <UniqueIdentifier>{c9352bdf-36d5-4dfa-87e7-98f3c9fa52f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -37,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="WindowSize.cpp">
       <Filter>WindowSize</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +144,10 @@
     </ClInclude>
     <ClInclude Include="Sphere.h">
       <Filter>Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Segment.h" />
+    <ClInclude Include="Collision.h">
+      <Filter>Collision</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
