@@ -1,8 +1,8 @@
 ﻿#include "Shape.h"
 #include "Math.h"
 #include "Vector3.h"
-#include <numbers>
 #include <cmath>
+#include <numbers>
 
 Shape::Shape() {}
 
@@ -82,9 +82,9 @@ void Shape::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& vie
 }
 
 void Shape::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	const uint32_t kSubdivision = 16; // 分割数
+	const uint32_t kSubdivision = 16;                                                                       // 分割数
 	const float kLonEvery = 2.0f * static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision); // 軽度分割1つ文の角度
-	const float kLatEvery = static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision); // 緯度分割1つ文の角度
+	const float kLatEvery = static_cast<float>(std::numbers::pi) / static_cast<float>(kSubdivision);        // 緯度分割1つ文の角度
 	// 緯度の方向に分割 -π/2 ~ π/2
 	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
 		float lat = -static_cast<float>(std::numbers::pi) / 2.0f + kLatEvery * latIndex; // 現在の緯度
@@ -93,21 +93,15 @@ void Shape::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 			float lon = lonIndex * kLonEvery; // 現在の経度
 			// world座標系でのa,b,cを求める
 			Vector3 a, b, c;
-			a = {sphere.radius * std::cosf(lat) * std::cosf(lon), 
-				sphere.radius * std::sinf(lat), 
-				sphere.radius * std::cosf(lat) * std::sinf(lon)};
+			a = {sphere.radius * std::cosf(lat) * std::cosf(lon), sphere.radius * std::sinf(lat), sphere.radius * std::cosf(lat) * std::sinf(lon)};
 
 			a = Math::Add(a, sphere.center);
 
-			b = {sphere.radius * std::cosf(lat + kLatEvery) * std::cosf(lon), 
-				sphere.radius * std::sinf(lat + kLatEvery), 
-				sphere.radius * std::cosf(lat + kLatEvery) * std::sinf(lon)};
+			b = {sphere.radius * std::cosf(lat + kLatEvery) * std::cosf(lon), sphere.radius * std::sinf(lat + kLatEvery), sphere.radius * std::cosf(lat + kLatEvery) * std::sinf(lon)};
 
 			b = Math::Add(b, sphere.center);
 
-			c = {sphere.radius * std::cosf(lat) * std::cosf(lon + kLonEvery), 
-				sphere.radius * std::sinf(lat), 
-				sphere.radius * std::cosf(lat) * std::sinf(lon + kLonEvery)};
+			c = {sphere.radius * std::cosf(lat) * std::cosf(lon + kLonEvery), sphere.radius * std::sinf(lat), sphere.radius * std::cosf(lat) * std::sinf(lon + kLonEvery)};
 
 			c = Math::Add(c, sphere.center);
 
@@ -124,4 +118,32 @@ void Shape::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 			DrawLine(c.x, c.y, a.x, a.y, color);
 		}
 	}
+}
+
+void Shape::DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) { 
+	Vector3 center = Math::Multiply(plane.distance, plane.normal); 
+	Vector3 perpendiculars[4];
+	perpendiculars[0] = Math::Normalize(Perpendicular(plane.normal));
+	perpendiculars[1] = {-perpendiculars[0].x, -perpendiculars[0].y, -perpendiculars[0].z};
+	perpendiculars[2] = Math::Cross(plane.normal, perpendiculars[0]);
+	perpendiculars[3] = {-perpendiculars[2].x, -perpendiculars[2].y, -perpendiculars[2].z};
+
+	Vector3 points[4];
+	for (int32_t index = 0; index < 4; ++index) {
+		Vector3 extend = Math::Multiply(2.0f, perpendiculars[index]);
+		Vector3 point = Math::Add(center, extend);
+		points[index] = Math::Transform(Math::Transform(point, viewProjectionMatrix), viewportMatrix);
+	}
+
+	DrawLine(points[0].x, points[0].y, points[2].x, points[2].y, color);
+	DrawLine(points[1].x, points[1].y, points[3].x, points[3].y, color);
+	DrawLine(points[2].x, points[2].y, points[1].x, points[1].y, color);
+	DrawLine(points[3].x, points[3].y, points[0].x, points[0].y, color);
+}
+
+Vector3 Shape::Perpendicular(const Vector3& vector) {
+	if (vector.x != 0.0f || vector.y != 0.0f) {
+		return {-vector.y, vector.x, 0.0f};
+	}
+	return {0.0f, -vector.z, vector.y};
 }

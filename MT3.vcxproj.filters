@@ -149,5 +149,8 @@
     <ClInclude Include="Collision.h">
       <Filter>Collision</Filter>
     </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>Shape</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

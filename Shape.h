@@ -3,6 +3,7 @@
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Sphere.h"
+#include "Plane.h"
 class Shape {
 public:
 	Shape();
@@ -115,4 +116,9 @@ public:
 	/// <param name="viewportMatrix">スクリーン座標系</param>
 	/// <param name="color">球の色</param>
 	static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
+	static void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
+	private:
+	static Vector3 Perpendicular(const Vector3& vector);
 };

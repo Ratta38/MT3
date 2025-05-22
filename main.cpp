@@ -4,6 +4,7 @@
 #include "Sphere.h"
 #include "Vector3.h"
 #include "WindowSize.h"
+#include "Plane.h"
 #include <Novice.h>
 #include <imgui.h>
 
@@ -24,14 +25,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate = {0.26f, 0.0f, 0.0f};
 
 	// 球
-	Sphere sphere[2] = {};
-	sphere[0].center = {0.0f, 0.0f, 0.0f};
-	sphere[0].radius = 1.0f;
-	sphere[0].color = WHITE;
+	Sphere sphere = {};
+	sphere.center = {0.0f, 0.0f, 0.0f};
+	sphere.radius = 1.0f;
+	sphere.color = WHITE;
 
-	sphere[1].center = {2.0f, 0.0f, 5.0f};
-	sphere[1].radius = 1.0f;
-	sphere[1].color = WHITE;
+	// 平面
+	Plane plane = {};
+	plane.normal = {0.0f, 1.0f, 0.0f};
+	plane.distance = {1.0f};
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -47,12 +49,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// 当たり判定
-		if (Collision::IsCollision(sphere[0], sphere[1])) {
-			sphere[0].color = RED;
-			sphere[1].color = RED;
+		if (Collision::IsCollision(sphere, plane)) {
+			sphere.color = RED;
 		} else {
-			sphere[0].color = WHITE;
-			sphere[1].color = WHITE;
+			sphere.color = WHITE;
 		}
 
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
@@ -67,8 +67,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::SliderFloat3("camera.translate", &cameraTranslate.x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("sphere[0].translate", &sphere[0].center.x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("sphere[1].translate", &sphere[1].center.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("sphere.translate", &sphere.center.x, -10.0f, 10.0f);
+		ImGui::DragFloat3("plane.normal", &plane.normal.x,0.01f);
+		plane.normal = Math::Normalize(plane.normal);
 #endif // _DEBUG
 
 		///
@@ -83,8 +84,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
 		// 球
-		Shape::DrawSphere(sphere[0], worldViewProjectionMatrix, viewportMatrix, sphere[0].color);
-		Shape::DrawSphere(sphere[1], worldViewProjectionMatrix, viewportMatrix, sphere[1].color);
+		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, sphere.color);
+
+		// 平面
+		Shape::DrawPlane(plane, worldViewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
