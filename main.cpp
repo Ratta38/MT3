@@ -78,16 +78,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// グリッド
-		Shape::DrawGrid(viewProjectionMatrix, viewportMatrix);
+		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
 		// 線分
-		Vector3 start = Math::Transform(Math::Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Math::Transform(Math::Transform(Math::Add(segment.origin,segment.diff),viewProjectionMatrix),viewportMatrix);
+		Vector3 start = Math::Transform(Math::Transform(segment.origin, worldViewProjectionMatrix), viewportMatrix);
+		Vector3 end = Math::Transform(Math::Transform(Math::Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
 		Shape::DrawLine(start.x,start.y,end.x,end.y,WHITE);
 
 		// 球
-		Shape::DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
-		Shape::DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
+		Shape::DrawSphere(pointSphere, worldViewProjectionMatrix, viewportMatrix, RED);
+		Shape::DrawSphere(closestPointSphere, worldViewProjectionMatrix, viewportMatrix, BLACK);
 
 		///
 		/// ↑描画処理ここまで
