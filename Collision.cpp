@@ -22,3 +22,17 @@ bool Collision::IsCollision(const Sphere& sphere, const Plane& plane) {
 	}
 	return false;
 }
+
+bool Collision::IsCollision(const Segment& segment, const Plane& plane) { 
+	float dot = Math::Dot(segment.diff, plane.normal);
+
+	if (dot == 0) {
+		return false;
+	}
+
+	float t = (plane.distance - Math::Dot(segment.origin, plane.normal)) / dot;
+	if (0 <= t && t <= 1) {
+		return true;
+	}
+	return false;
+}

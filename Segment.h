@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include "Vector3.h"
+#include <stdint.h>
 struct Segment
 {
 	Vector3 origin; //!< 始点
 	Vector3 diff; //!< 終点への差分ベクトル
+	uint32_t color;
 };

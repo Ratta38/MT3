@@ -1,10 +1,10 @@
 #include "Collision.h"
 #include "Math.h"
+#include "Plane.h"
 #include "Shape.h"
 #include "Sphere.h"
 #include "Vector3.h"
 #include "WindowSize.h"
-#include "Plane.h"
 #include <Novice.h>
 #include <imgui.h>
 
@@ -24,11 +24,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = {0.0f, 1.9f, -6.49f};
 	Vector3 cameraRotate = {0.26f, 0.0f, 0.0f};
 
-	// 球
-	Sphere sphere = {};
-	sphere.center = {0.0f, 0.0f, 0.0f};
-	sphere.radius = 1.0f;
-	sphere.color = WHITE;
+	// 線分
+	Segment segment = {};
+	segment.origin = {0.0f, 0.0f, 0.0f};
+	segment.diff = {1.0f, 1.0f, 1.0f};
+	segment.color = WHITE;
 
 	// 平面
 	Plane plane = {};
@@ -49,10 +49,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// 当たり判定
-		if (Collision::IsCollision(sphere, plane)) {
-			sphere.color = RED;
+		if (Collision::IsCollision(segment, plane)) {
+			segment.color = RED;
 		} else {
-			sphere.color = WHITE;
+			segment.color = WHITE;
 		}
 
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
@@ -67,8 +67,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #ifdef _DEBUG
 		ImGui::SliderFloat3("camera.translate", &cameraTranslate.x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("sphere.translate", &sphere.center.x, -10.0f, 10.0f);
-		ImGui::DragFloat3("plane.normal", &plane.normal.x,0.01f);
+		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.01f);
+		ImGui::DragFloat3("plane.normal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("plane.distance", &plane.distance, 0.01f);
 		plane.normal = Math::Normalize(plane.normal);
 #endif // _DEBUG
 
@@ -83,8 +85,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッド
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
-		// 球
-		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, sphere.color);
+		// 線分
+		Vector3 start = Math::Transform(Math::Transform(segment.origin, worldViewProjectionMatrix), viewportMatrix);
+		Vector3 end = Math::Transform(Math::Transform(Math::Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
+		Shape::DrawLine(start.x, start.y, end.x, end.y, segment.color);
 
 		// 平面
 		Shape::DrawPlane(plane, worldViewProjectionMatrix, viewportMatrix, WHITE);
