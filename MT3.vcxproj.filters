@@ -152,5 +152,6 @@
     <ClInclude Include="Plane.h">
       <Filter>Shape</Filter>
     </ClInclude>
+    <ClInclude Include="Triangle.h" />
   </ItemGroup>
 </Project>

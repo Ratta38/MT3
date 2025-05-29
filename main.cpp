@@ -30,10 +30,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	segment.diff = {1.0f, 1.0f, 1.0f};
 	segment.color = WHITE;
 
-	// 平面
-	Plane plane = {};
-	plane.normal = {0.0f, 1.0f, 0.0f};
-	plane.distance = {1.0f};
+	// 三角形
+	Triangle triangle = {};
+	triangle.vertices[0] = {0.0f, 1.0f, 0.0f};
+	triangle.vertices[1] = {-0.5f, 0.0f, 0.0f};
+	triangle.vertices[2] = {0.5f, 0.0f, 0.0f};
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -49,7 +50,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// 当たり判定
-		if (Collision::IsCollision(segment, plane)) {
+		if (Collision::IsCollision(triangle, segment)) {
 			segment.color = RED;
 		} else {
 			segment.color = WHITE;
@@ -66,12 +67,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewportMatrix = Math::MakeViewPortMatrix(0, 0, 1280.0f, 720.0f, 0.0f, 1.0f);
 
 #ifdef _DEBUG
-		ImGui::SliderFloat3("camera.translate", &cameraTranslate.x, -10.0f, 10.0f);
+		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.01f);
 		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.01f);
-		ImGui::DragFloat3("plane.normal", &plane.normal.x, 0.01f);
-		ImGui::DragFloat("plane.distance", &plane.distance, 0.01f);
-		plane.normal = Math::Normalize(plane.normal);
+		ImGui::DragFloat3("triangle.vertices[0]", &triangle.vertices[0].x, 0.01f);
+		ImGui::DragFloat3("triangle.vertices[1]", &triangle.vertices[1].x, 0.01f);
+		ImGui::DragFloat3("triangle.vertices[2]", &triangle.vertices[2].x, 0.01f);
 #endif // _DEBUG
 
 		///
@@ -90,8 +92,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 end = Math::Transform(Math::Transform(Math::Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
 		Shape::DrawLine(start.x, start.y, end.x, end.y, segment.color);
 
-		// 平面
-		Shape::DrawPlane(plane, worldViewProjectionMatrix, viewportMatrix, WHITE);
+		// 三角形
+		Shape::DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

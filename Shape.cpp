@@ -141,6 +141,15 @@ void Shape::DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix,
 	DrawLine(points[3].x, points[3].y, points[0].x, points[0].y, color);
 }
 
+void Shape::DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	Vector3 point[3];
+	for (uint32_t i = 0; i < 3; ++i) {
+		point[i] = Math::Transform(Math::Transform(triangle.vertices[i], viewProjectionMatrix), viewportMatrix);
+	}
+
+	DrawTriangle(point[0].x, point[0].y, point[1].x, point[1].y, point[2].x, point[2].y, color, kFillModeWireFrame);
+}
+
 Vector3 Shape::Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {
 		return {-vector.y, vector.x, 0.0f};
