@@ -153,5 +153,6 @@
       <Filter>Shape</Filter>
     </ClInclude>
     <ClInclude Include="Triangle.h" />
+    <ClInclude Include="AABB.h" />
   </ItemGroup>
 </Project>

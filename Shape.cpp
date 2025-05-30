@@ -150,6 +150,41 @@ void Shape::DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjecti
 	DrawTriangle(point[0].x, point[0].y, point[1].x, point[1].y, point[2].x, point[2].y, color, kFillModeWireFrame);
 }
 
+void Shape::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4 viewportMatrix, uint32_t color) {
+	Vector3 point[8];
+	point[0] = aabb.min;                             // 左下　手前
+	point[1] = {aabb.min.x, aabb.min.y, aabb.max.z}; // 左下　奥
+	point[2] = {aabb.max.x, aabb.min.y, aabb.min.z}; // 右下　手前
+	point[3] = {aabb.max.x, aabb.min.y, aabb.max.z}; // 右下　奥
+
+	point[4] = {aabb.min.x, aabb.max.y, aabb.min.z}; // 左上　手前
+	point[5] = {aabb.min.x, aabb.max.y, aabb.max.z}; // 左上　奥
+	point[6] = {aabb.max.x, aabb.max.y, aabb.min.z}; // 右上　手前
+	point[7] = aabb.max;                             // 右上　奥
+
+	for (uint32_t i = 0; i < 8; ++i) {
+		point[i] = Math::Transform(Math::Transform(point[i], viewProjectionMatrix), viewportMatrix);
+	}
+
+	// 底面（下側）
+	DrawLine(point[0].x, point[0].y, point[1].x, point[1].y, color);
+	DrawLine(point[1].x, point[1].y, point[3].x, point[3].y, color);
+	DrawLine(point[3].x, point[3].y, point[2].x, point[2].y, color);
+	DrawLine(point[2].x, point[2].y, point[0].x, point[0].y, color);
+
+	// 上面（上側）
+	DrawLine(point[4].x, point[4].y, point[5].x, point[5].y, color);
+	DrawLine(point[5].x, point[5].y, point[7].x, point[7].y, color);
+	DrawLine(point[7].x, point[7].y, point[6].x, point[6].y, color);
+	DrawLine(point[6].x, point[6].y, point[4].x, point[4].y, color);
+
+	// 側面（縦の辺）
+	DrawLine(point[0].x, point[0].y, point[4].x, point[4].y, color);
+	DrawLine(point[1].x, point[1].y, point[5].x, point[5].y, color);
+	DrawLine(point[2].x, point[2].y, point[6].x, point[6].y, color);
+	DrawLine(point[3].x, point[3].y, point[7].x, point[7].y, color);
+}
+
 Vector3 Shape::Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {
 		return {-vector.y, vector.x, 0.0f};

@@ -5,6 +5,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Triangle.h"
+#include "AABB.h"
 #include <stdint.h>
 
 class Shape {
@@ -123,6 +124,8 @@ public:
 	static void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
 	static void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
+	static void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4 viewportMatrix, uint32_t color);
 
 	private:
 	static Vector3 Perpendicular(const Vector3& vector);
