@@ -4,6 +4,5 @@ struct Sphere
 {
 	Vector3 center; //!< 中心点
 	float radius; //!< 半径
-	unsigned int color; //!< 色
 };
 

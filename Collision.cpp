@@ -1,8 +1,9 @@
 ﻿#include "Collision.h"
 #include "Math.h"
 #include <cmath>
+#include <algorithm>
 
-bool Collision::IsCollision(const Sphere& s1, const Sphere& s2) { 
+bool Collision::Intersect(const Sphere& s1, const Sphere& s2) { 
 	float distanceX = s1.center.x - s2.center.x;
 	float distanceY = s1.center.y - s2.center.y;
 	float distanceZ = s1.center.z - s2.center.z;
@@ -14,7 +15,7 @@ bool Collision::IsCollision(const Sphere& s1, const Sphere& s2) {
 	return false;
 }
 
-bool Collision::IsCollision(const Sphere& sphere, const Plane& plane) { 
+bool Collision::Intersect(const Sphere& sphere, const Plane& plane) { 
 	float distance = Math::Dot(sphere.center, plane.normal) - plane.distance;
 
 	if (std::abs(distance) <= sphere.radius) {
@@ -23,7 +24,7 @@ bool Collision::IsCollision(const Sphere& sphere, const Plane& plane) {
 	return false;
 }
 
-bool Collision::IsCollision(const Segment& segment, const Plane& plane) { 
+bool Collision::Intersect(const Segment& segment, const Plane& plane) { 
 	float dot = Math::Dot(segment.diff, plane.normal);
 
 	if (dot == 0) {
@@ -37,7 +38,7 @@ bool Collision::IsCollision(const Segment& segment, const Plane& plane) {
 	return false;
 }
 
-bool Collision::IsCollision(const Triangle& triangle, const Segment& segment) { 
+bool Collision::Intersect(const Triangle& triangle, const Segment& segment) { 
 
 	Vector3 v0 = triangle.vertices[0];
 	Vector3 v1 = triangle.vertices[1];
@@ -83,10 +84,32 @@ bool Collision::IsCollision(const Triangle& triangle, const Segment& segment) {
 	return false;
 }
 
-bool Collision::IsCollision(const AABB& aabb1, const AABB& aabb2) { 
+bool Collision::Intersect(const AABB& aabb1, const AABB& aabb2) { 
 	if ((aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) && // x軸
 		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) && // y軸
 		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)) { // z軸
+		// 衝突
+		return true;
+	}
+
+	// 衝突なし
+	return false;
+}
+
+bool Collision::Intersect(const AABB& aabb, const Sphere& sphere) { 
+	// 最近接点を求める
+	Vector3 closestPoint{
+	    std::clamp(sphere.center.x, aabb.min.x, aabb.max.x),
+	    std::clamp(sphere.center.y, aabb.min.y, aabb.max.y),
+	    std::clamp(sphere.center.z, aabb.min.z, aabb.max.z)
+	};
+
+	// 最近接点との距離を求める
+	float distance = Math::Length(Math::Subtract(closestPoint, sphere.center));
+
+	// 距離が半径よりも小さければ衝突
+	if (distance <= sphere.radius)
+	{
 		// 衝突
 		return true;
 	}

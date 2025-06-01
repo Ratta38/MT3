@@ -33,9 +33,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	    .max{1.0f,  1.0f,  1.0f },
 	};
 
-	AABB aabb2{
-	    .min{0.2f, 0.2f, 0.2f},
-	    .max{1.0f,  1.0f,  1.0f },
+	// 球
+	Sphere sphere{
+	    .center{0.0f, 0.0f, 0.0f},
+	    .radius{1.0f},
 	};
 
 	uint32_t color = WHITE;
@@ -54,7 +55,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// 当たり判定
-		if (Collision::IsCollision(aabb1, aabb2)) {
+		if (Collision::Intersect(aabb1, sphere)) {
 			color = RED;
 		} else {
 			color = WHITE;
@@ -75,8 +76,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
 		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
-		ImGui::DragFloat3("aabb2.max", &aabb2.max.x, 0.01f);
-		ImGui::DragFloat3("aabb2.min", &aabb2.min.x, 0.01f);
+		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("sphere.radius", &sphere.radius, 0.01f);
 
 		// minとmaxが入れ替わらないようにする
 		// aabb1
@@ -96,23 +97,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			aabb1.max.z = std::max(z0, z1);
 		}
 
-		// aabb2
-		{
-			float x0 = aabb2.min.x;
-			float x1 = aabb2.max.x;
-			float y0 = aabb2.min.y;
-			float y1 = aabb2.max.y;
-			float z0 = aabb2.min.z;
-			float z1 = aabb2.max.z;
-
-			aabb2.min.x = std::min(x0, x1);
-			aabb2.max.x = std::max(x0, x1);
-			aabb2.min.y = std::min(y0, y1);
-			aabb2.max.y = std::max(y0, y1);
-			aabb2.min.z = std::min(z0, z1);
-			aabb2.max.z = std::max(z0, z1);
-		}
-
 #endif // _DEBUG
 
 		///
@@ -128,7 +112,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// AABB
 		Shape::DrawAABB(aabb1, worldViewProjectionMatrix, viewportMatrix, color);
-		Shape::DrawAABB(aabb2, worldViewProjectionMatrix, viewportMatrix, WHITE);
+		
+		// 球
+		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
