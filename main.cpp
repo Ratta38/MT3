@@ -7,6 +7,9 @@
 #include "WindowSize.h"
 #include <Novice.h>
 #include <imgui.h>
+#undef min
+#undef max
+#include <algorithm>
 
 const char kWindowTitle[] = "LE2B_23_ミハラ_ユウタ_タイトル";
 
@@ -21,8 +24,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = {0};
 
 	// カメラ
-	Vector3 cameraTranslate = {0.0f, 1.9f, -6.49f};
-	Vector3 cameraRotate = {0.26f, 0.0f, 0.0f};
+	Vector3 cameraTranslate = {0.0f, 10.0f, -6.5f};
+	Vector3 cameraRotate = {1.0f, 0.0f, 0.0f};
 
 	// AABB
 	AABB aabb1{
@@ -76,19 +79,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("aabb2.min", &aabb2.min.x, 0.01f);
 
 		// minとmaxが入れ替わらないようにする
-		aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
-		aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
-		aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
-		aabb1.max.y = (std::max)(aabb1.min.y, aabb1.max.y);
-		aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z);
-		aabb1.max.z = (std::max)(aabb1.min.z, aabb1.max.z);
+		// aabb1
+		{
+			float x0 = aabb1.min.x;
+			float x1 = aabb1.max.x;
+			float y0 = aabb1.min.y;
+			float y1 = aabb1.max.y;
+			float z0 = aabb1.min.z;
+			float z1 = aabb1.max.z;
 
-		aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x);
-		aabb2.max.x = (std::max)(aabb2.min.x, aabb2.max.x);
-		aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y);
-		aabb2.max.y = (std::max)(aabb2.min.y, aabb2.max.y);
-		aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
-		aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
+			aabb1.min.x = std::min(x0, x1);
+			aabb1.max.x = std::max(x0, x1);
+			aabb1.min.y = std::min(y0, y1);
+			aabb1.max.y = std::max(y0, y1);
+			aabb1.min.z = std::min(z0, z1);
+			aabb1.max.z = std::max(z0, z1);
+		}
+
+		// aabb2
+		{
+			float x0 = aabb2.min.x;
+			float x1 = aabb2.max.x;
+			float y0 = aabb2.min.y;
+			float y1 = aabb2.max.y;
+			float z0 = aabb2.min.z;
+			float z1 = aabb2.max.z;
+
+			aabb2.min.x = std::min(x0, x1);
+			aabb2.max.x = std::max(x0, x1);
+			aabb2.min.y = std::min(y0, y1);
+			aabb2.max.y = std::max(y0, y1);
+			aabb2.min.z = std::min(z0, z1);
+			aabb2.max.z = std::max(z0, z1);
+		}
+
 #endif // _DEBUG
 
 		///
