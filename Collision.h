@@ -18,4 +18,5 @@ bool Intersect(const Segment& segment, const Plane& plane);
 bool Intersect(const Triangle& triangle, const Segment& segment);
 bool Intersect(const AABB& aabb1, const AABB& aabb2);
 bool Intersect(const AABB& aabb, const Sphere& sphere);
+bool Intersect(const AABB& aabb, const Segment& segment);
 }; // namespace Collision

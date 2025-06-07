@@ -30,13 +30,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// AABB
 	AABB aabb1{
 	    .min{-0.5f, -0.5f, -0.5f},
-	    .max{1.0f,  1.0f,  1.0f },
+	    .max{0.5f,  0.5f,  0.5f },
 	};
 
-	// 球
-	Sphere sphere{
-	    .center{0.0f, 0.0f, 0.0f},
-	    .radius{1.0f},
+	// 線分
+	Segment segment{
+		.origin{-0.7f,0.3f,0.0f}, 
+		.diff{2.0f,-0.5f,0.0f}
 	};
 
 	uint32_t color = WHITE;
@@ -55,7 +55,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// 当たり判定
-		if (Collision::Intersect(aabb1, sphere)) {
+		if (Collision::Intersect(aabb1, segment)) {
 			color = RED;
 		} else {
 			color = WHITE;
@@ -76,8 +76,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
 		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
-		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("sphere.radius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.01f);
 
 		// minとmaxが入れ替わらないようにする
 		// aabb1
@@ -113,8 +113,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// AABB
 		Shape::DrawAABB(aabb1, worldViewProjectionMatrix, viewportMatrix, color);
 		
-		// 球
-		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, WHITE);
+		// 線分
+		Vector3 start = Math::Transform(Math::Transform(segment.origin, worldViewProjectionMatrix), viewportMatrix);
+		Vector3 end = Math::Transform(Math::Transform(Math::Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
+		Shape::DrawLine(start.x, start.y, end.x, end.y, WHITE);
 
 		///
 		/// ↑描画処理ここまで
