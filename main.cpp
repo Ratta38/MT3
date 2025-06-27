@@ -27,20 +27,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = {0.0f, 10.0f, -6.5f};
 	Vector3 cameraRotate = {1.0f, 0.0f, 0.0f};
 
-	// 制御点の数
-	const uint32_t POINT_COUNT = 3;
-
-	// 制御点
-	Vector3 controlPoints[POINT_COUNT] = {
-	    {-0.8f,  0.58f, 1.0f },
-	    {1.76f,  1.0f,  -0.3f},
-	    {-0.94f, -0.7f, 2.3f },
+	Vector3 translates[3] = {
+	    {0.2f, 1.0f, 0.0f},
+	    {0.4f, 0.0f, 0.0f},
+	    {0.3f, 0.0f, 0.0f},
 	};
 
-	Sphere sphere[POINT_COUNT];
-	for (uint32_t i = 0; i < POINT_COUNT; i++) {
-		sphere[i].center = controlPoints[i];
-		sphere[i].radius = 0.01f;
+	Vector3 rotates[3] = {
+	    {0.0f, 0.0f, -6.0f},
+	    {0.0f, 0.0f, -1.4f},
+	    {0.0f, 0.0f, 0.0f },
+	};
+
+	Vector3 scales[3] = {
+	    {1.0f, 1.0f, 1.0f},
+	    {1.0f, 1.0f, 1.0f},
+	    {1.0f, 1.0f, 1.0f},
+	};
+
+	// 肩、肘、手の行列
+	Matrix4x4 joints[3]{};
+
+	// sphere
+	Sphere sphere[3]{};
+	for (uint32_t i = 0; i < 3; ++i) {
+		sphere[i].radius = 0.1f;
 	}
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -56,6 +67,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		// アフィン変換
+		for (uint32_t i = 0; i < 3; ++i) {
+			joints[i] = Math::MakeAffineMatrix(scales[i], rotates[i], translates[i]);
+		}
+
+		// 階層構造
+		joints[1] = Math::Multiply(joints[1], joints[0]);
+		joints[2] = Math::Multiply(joints[2], joints[1]);
+
+		// 球に代入
+		for (uint32_t i = 0; i < 3; ++i) {
+			sphere[i].center.x = joints[i].m[3][0];
+			sphere[i].center.y = joints[i].m[3][1];
+			sphere[i].center.z = joints[i].m[3][2];
+		}
+
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
 		Matrix4x4 cameraMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Math::Inverse(cameraMatrix);
@@ -69,9 +96,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("controlPoints[0]", &controlPoints[0].x, 0.01f);
-		ImGui::DragFloat3("controlPoints[1]", &controlPoints[1].x, 0.01f);
-		ImGui::DragFloat3("controlPoints[2]", &controlPoints[2].x, 0.01f);
+
+		ImGui::DragFloat3("translate[0]", &translates[0].x, 0.01f);
+		ImGui::DragFloat3("rotate[0]", &rotates[0].x, 0.01f);
+		ImGui::DragFloat3("scale[0]", &scales[0].x, 0.01f);
+
+		ImGui::DragFloat3("translate[1]", &translates[1].x, 0.01f);
+		ImGui::DragFloat3("rotate[1]", &rotates[1].x, 0.01f);
+		ImGui::DragFloat3("scale[1]", &scales[1].x, 0.01f);
+
+		ImGui::DragFloat3("translate[2]", &translates[2].x, 0.01f);
+		ImGui::DragFloat3("rotate[2]", &rotates[2].x, 0.01f);
+		ImGui::DragFloat3("scale[2]", &scales[2].x, 0.01f);
 
 #endif // _DEBUG
 
@@ -86,13 +122,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッド
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
-		// 制御点
-		for (uint32_t i = 0; i < POINT_COUNT; ++i) {
-			sphere[i].center = controlPoints[i];
-			Shape::DrawSphere(sphere[i], viewProjectionMatrix, viewportMatrix, BLACK);
+		// 球の描画
+		Shape::DrawSphere(sphere[0], worldViewProjectionMatrix, viewportMatrix, RED);
+		Shape::DrawSphere(sphere[1], worldViewProjectionMatrix, viewportMatrix, GREEN);
+		Shape::DrawSphere(sphere[2], worldViewProjectionMatrix, viewportMatrix, BLUE);
+
+		Sphere drawSpheres[3]{};
+		for (uint32_t i = 0; i < 3; ++i) {
+			Vector3 screenPos = Math::Transform(sphere[i].center, worldViewProjectionMatrix);
+			drawSpheres[i].center = Math::Transform(screenPos, viewportMatrix);
 		}
 
-		Shape::DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], viewProjectionMatrix, viewportMatrix, BLACK);
+		// 線の描画
+		Shape::DrawLine(drawSpheres[0].center.x, drawSpheres[0].center.y, drawSpheres[1].center.x, drawSpheres[1].center.y, WHITE);
+		Shape::DrawLine(drawSpheres[1].center.x, drawSpheres[1].center.y, drawSpheres[2].center.x, drawSpheres[2].center.y, WHITE);
 
 		///
 		/// ↑描画処理ここまで
