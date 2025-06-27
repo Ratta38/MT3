@@ -27,19 +27,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = {0.0f, 10.0f, -6.5f};
 	Vector3 cameraRotate = {1.0f, 0.0f, 0.0f};
 
-	// AABB
-	AABB aabb1{
-	    .min{-0.5f, -0.5f, -0.5f},
-	    .max{0.5f,  0.5f,  0.5f },
+	// 制御点の数
+	const uint32_t POINT_COUNT = 3;
+
+	// 制御点
+	Vector3 controlPoints[POINT_COUNT] = {
+	    {-0.8f,  0.58f, 1.0f },
+	    {1.76f,  1.0f,  -0.3f},
+	    {-0.94f, -0.7f, 2.3f },
 	};
 
-	// 線分
-	Segment segment{
-		.origin{-0.7f,0.3f,0.0f}, 
-		.diff{2.0f,-0.5f,0.0f}
-	};
-
-	uint32_t color = WHITE;
+	Sphere sphere[POINT_COUNT];
+	for (uint32_t i = 0; i < POINT_COUNT; i++) {
+		sphere[i].center = controlPoints[i];
+		sphere[i].radius = 0.01f;
+	}
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -54,13 +56,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		// 当たり判定
-		if (Collision::Intersect(aabb1, segment)) {
-			color = RED;
-		} else {
-			color = WHITE;
-		}
-
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
 		Matrix4x4 cameraMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Math::Inverse(cameraMatrix);
@@ -74,28 +69,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
-		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
-		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.01f);
-
-		// minとmaxが入れ替わらないようにする
-		// aabb1
-		{
-			float x0 = aabb1.min.x;
-			float x1 = aabb1.max.x;
-			float y0 = aabb1.min.y;
-			float y1 = aabb1.max.y;
-			float z0 = aabb1.min.z;
-			float z1 = aabb1.max.z;
-
-			aabb1.min.x = std::min(x0, x1);
-			aabb1.max.x = std::max(x0, x1);
-			aabb1.min.y = std::min(y0, y1);
-			aabb1.max.y = std::max(y0, y1);
-			aabb1.min.z = std::min(z0, z1);
-			aabb1.max.z = std::max(z0, z1);
-		}
+		ImGui::DragFloat3("controlPoints[0]", &controlPoints[0].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[1]", &controlPoints[1].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[2]", &controlPoints[2].x, 0.01f);
 
 #endif // _DEBUG
 
@@ -110,13 +86,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッド
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
-		// AABB
-		Shape::DrawAABB(aabb1, worldViewProjectionMatrix, viewportMatrix, color);
-		
-		// 線分
-		Vector3 start = Math::Transform(Math::Transform(segment.origin, worldViewProjectionMatrix), viewportMatrix);
-		Vector3 end = Math::Transform(Math::Transform(Math::Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
-		Shape::DrawLine(start.x, start.y, end.x, end.y, WHITE);
+		// 制御点
+		for (uint32_t i = 0; i < POINT_COUNT; ++i) {
+			sphere[i].center = controlPoints[i];
+			Shape::DrawSphere(sphere[i], viewProjectionMatrix, viewportMatrix, BLACK);
+		}
+
+		Shape::DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], viewProjectionMatrix, viewportMatrix, BLACK);
 
 		///
 		/// ↑描画処理ここまで

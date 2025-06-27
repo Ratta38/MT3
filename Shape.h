@@ -127,6 +127,12 @@ public:
 
 	static void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4 viewportMatrix, uint32_t color);
 
+	static void DrawBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
 	private:
 	static Vector3 Perpendicular(const Vector3& vector);
+
+	private:
+	// 分離数
+	static const uint32_t NUM = 32;
 };

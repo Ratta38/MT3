@@ -314,3 +314,12 @@ Vector3 Math::ClosestPoint(const Vector3& point, const Segment& segment) {
 	result = Add(segment.origin, Project(Subtract(point, segment.origin), segment.diff));
 	return result;
 }
+
+Vector3 Math::Lerp(const Vector3& v1, const Vector3& v2, float t) { 
+	Vector3 result;
+	result.x = v1.x + (v2.x - v1.x) * t;
+	result.y = v1.y + (v2.y - v1.y) * t;
+	result.z = v1.z + (v2.z - v1.z) * t;
+
+	return result;
+}

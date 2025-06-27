@@ -185,6 +185,28 @@ void Shape::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, co
 	DrawLine(point[3].x, point[3].y, point[7].x, point[7].y, color);
 }
 
+void Shape::DrawBezier(
+    const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	for (uint32_t index = 0; index < NUM; index++) {
+		float t0 = static_cast<float>(index) / static_cast<float>(NUM);
+		float t1 = static_cast<float>(index + 1) / static_cast<float>(NUM);
+
+		Vector3 p0p1 = Math::Lerp(controlPoint0, controlPoint1, t0);
+		Vector3 p1p2 = Math::Lerp(controlPoint1, controlPoint2, t0);
+
+		Vector3 p0p1After = Math::Lerp(controlPoint0, controlPoint1, t1);
+		Vector3 p1p2After = Math::Lerp(controlPoint1, controlPoint2, t1);
+
+		Vector3 bezier0 = Math::Lerp(p0p1, p1p2, t0);
+		Vector3 bezier1 = Math::Lerp(p0p1After, p1p2After, t1);
+
+		Vector3 bezierPointScreen = Math::Transform(Math::Transform(bezier0, viewProjectionMatrix), viewportMatrix);
+		Vector3 bezierPointNextScreen = Math::Transform(Math::Transform(bezier1, viewProjectionMatrix), viewportMatrix);
+
+		Novice::DrawLine((int)bezierPointScreen.x, (int)bezierPointScreen.y, (int)bezierPointNextScreen.x, (int)bezierPointNextScreen.y, color);
+	}
+}
+
 Vector3 Shape::Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {
 		return {-vector.y, vector.x, 0.0f};

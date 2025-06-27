@@ -150,4 +150,6 @@ public:
 	static Vector3 Project(const Vector3& v1, const Vector3& v2);
 
 	static Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
+
+	static Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t);
 };
