@@ -154,5 +154,6 @@
     </ClInclude>
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="AABB.h" />
+    <ClInclude Include="MathOperator.h" />
   </ItemGroup>
 </Project>

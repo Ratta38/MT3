@@ -1,5 +1,6 @@
 #include "Collision.h"
 #include "Math.h"
+#include "MathOperator.h"
 #include "Plane.h"
 #include "Shape.h"
 #include "Sphere.h"
@@ -27,32 +28,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = {0.0f, 10.0f, -6.5f};
 	Vector3 cameraRotate = {1.0f, 0.0f, 0.0f};
 
-	Vector3 translates[3] = {
-	    {0.2f, 1.0f, 0.0f},
-	    {0.4f, 0.0f, 0.0f},
-	    {0.3f, 0.0f, 0.0f},
-	};
+	Vector3 a{0.2f, 1.0f, 0.0f};
+	Vector3 b{2.4f, 3.1f, 1.2f};
+	Vector3 c = a + b;
+	Vector3 d = a - b;
+	Vector3 e = a * 2.4f;
+	Vector3 f = a / 2.0f;
+	Vector3 g = +b;
+	Vector3 h = -b;
+	Vector3 i = a += b;
+	Vector3 j = a -= b;
+	Vector3 k = a *= 3.0f;
+	Vector3 l = a /= 2.0f;
 
-	Vector3 rotates[3] = {
-	    {0.0f, 0.0f, -6.0f},
-	    {0.0f, 0.0f, -1.4f},
-	    {0.0f, 0.0f, 0.0f },
-	};
-
-	Vector3 scales[3] = {
-	    {1.0f, 1.0f, 1.0f},
-	    {1.0f, 1.0f, 1.0f},
-	    {1.0f, 1.0f, 1.0f},
-	};
-
-	// 肩、肘、手の行列
-	Matrix4x4 joints[3]{};
-
-	// sphere
-	Sphere sphere[3]{};
-	for (uint32_t i = 0; i < 3; ++i) {
-		sphere[i].radius = 0.1f;
-	}
+	Vector3 rotate{0.4f, 1.43f, -0.8f};
+	Matrix4x4 rotateXMatrix = Math::MakePitchRotateMatrix(rotate.x);
+	Matrix4x4 rotateYMatrix = Math::MakePitchRotateMatrix(rotate.y);
+	Matrix4x4 rotateZMatrix = Math::MakePitchRotateMatrix(rotate.z);
+	Matrix4x4 rotateMatrixMul = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+	Matrix4x4 rotateMatrixAdd = rotateXMatrix + rotateYMatrix + rotateZMatrix;
+	Matrix4x4 rotateMatrixSub = rotateXMatrix - rotateYMatrix - rotateZMatrix;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -67,22 +62,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		// アフィン変換
-		for (uint32_t i = 0; i < 3; ++i) {
-			joints[i] = Math::MakeAffineMatrix(scales[i], rotates[i], translates[i]);
-		}
-
-		// 階層構造
-		joints[1] = Math::Multiply(joints[1], joints[0]);
-		joints[2] = Math::Multiply(joints[2], joints[1]);
-
-		// 球に代入
-		for (uint32_t i = 0; i < 3; ++i) {
-			sphere[i].center.x = joints[i].m[3][0];
-			sphere[i].center.y = joints[i].m[3][1];
-			sphere[i].center.z = joints[i].m[3][2];
-		}
-
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
 		Matrix4x4 cameraMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Math::Inverse(cameraMatrix);
@@ -94,20 +73,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewportMatrix = Math::MakeViewPortMatrix(0, 0, 1280.0f, 720.0f, 0.0f, 1.0f);
 
 #ifdef _DEBUG
-		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
-		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
-
-		ImGui::DragFloat3("translate[0]", &translates[0].x, 0.01f);
-		ImGui::DragFloat3("rotate[0]", &rotates[0].x, 0.01f);
-		ImGui::DragFloat3("scale[0]", &scales[0].x, 0.01f);
-
-		ImGui::DragFloat3("translate[1]", &translates[1].x, 0.01f);
-		ImGui::DragFloat3("rotate[1]", &rotates[1].x, 0.01f);
-		ImGui::DragFloat3("scale[1]", &scales[1].x, 0.01f);
-
-		ImGui::DragFloat3("translate[2]", &translates[2].x, 0.01f);
-		ImGui::DragFloat3("rotate[2]", &rotates[2].x, 0.01f);
-		ImGui::DragFloat3("scale[2]", &scales[2].x, 0.01f);
+		ImGui::Begin("Window");
+		ImGui::Text("c:%f, %f, %f", c.x, c.y, c.z);
+		ImGui::Text("d:%f, %f, %f", d.x, d.y, d.z);
+		ImGui::Text("e:%f, %f, %f", e.x, e.y, e.z);
+		ImGui::Text("f:%f, %f, %f", f.x, f.y, f.z);
+		ImGui::Text("g:%f, %f, %f", g.x, g.y, g.z);
+		ImGui::Text("h:%f, %f, %f", h.x, h.y, h.z);
+		ImGui::Text("i:%f, %f, %f", i.x, i.y, i.z);
+		ImGui::Text("j:%f, %f, %f", j.x, j.y, j.z);
+		ImGui::Text("k:%f, %f, %f", k.x, k.y, k.z);
+		ImGui::Text("l:%f, %f, %f", l.x, l.y, l.z);
+		ImGui::Text(
+		    "matrixMul:\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n", rotateMatrixMul.m[0][0], rotateMatrixMul.m[0][1], rotateMatrixMul.m[0][2], rotateMatrixMul.m[0][3], rotateMatrixMul.m[1][0],
+		    rotateMatrixMul.m[1][1], rotateMatrixMul.m[1][2], rotateMatrixMul.m[1][3], rotateMatrixMul.m[2][0], rotateMatrixMul.m[2][1], rotateMatrixMul.m[2][2], rotateMatrixMul.m[2][3],
+		    rotateMatrixMul.m[3][0], rotateMatrixMul.m[3][1], rotateMatrixMul.m[3][2], rotateMatrixMul.m[3][3]);
+		ImGui::Text(
+		    "matrixAdd:\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n", rotateMatrixAdd.m[0][0], rotateMatrixAdd.m[0][1], rotateMatrixAdd.m[0][2], rotateMatrixAdd.m[0][3], rotateMatrixAdd.m[1][0],
+		    rotateMatrixAdd.m[1][1], rotateMatrixAdd.m[1][2], rotateMatrixAdd.m[1][3], rotateMatrixAdd.m[2][0], rotateMatrixAdd.m[2][1], rotateMatrixAdd.m[2][2], rotateMatrixAdd.m[2][3],
+		    rotateMatrixAdd.m[3][0], rotateMatrixAdd.m[3][1], rotateMatrixAdd.m[3][2], rotateMatrixAdd.m[3][3]);
+		ImGui::Text(
+		    "matrixSub:\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n", rotateMatrixSub.m[0][0], rotateMatrixSub.m[0][1], rotateMatrixSub.m[0][2], rotateMatrixSub.m[0][3], rotateMatrixSub.m[1][0],
+		    rotateMatrixSub.m[1][1], rotateMatrixSub.m[1][2], rotateMatrixSub.m[1][3], rotateMatrixSub.m[2][0], rotateMatrixSub.m[2][1], rotateMatrixSub.m[2][2], rotateMatrixSub.m[2][3],
+		    rotateMatrixSub.m[3][0], rotateMatrixSub.m[3][1], rotateMatrixSub.m[3][2], rotateMatrixSub.m[3][3]);
+		ImGui::End();
 
 #endif // _DEBUG
 
@@ -121,21 +110,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// グリッド
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
-
-		// 球の描画
-		Shape::DrawSphere(sphere[0], worldViewProjectionMatrix, viewportMatrix, RED);
-		Shape::DrawSphere(sphere[1], worldViewProjectionMatrix, viewportMatrix, GREEN);
-		Shape::DrawSphere(sphere[2], worldViewProjectionMatrix, viewportMatrix, BLUE);
-
-		Sphere drawSpheres[3]{};
-		for (uint32_t i = 0; i < 3; ++i) {
-			Vector3 screenPos = Math::Transform(sphere[i].center, worldViewProjectionMatrix);
-			drawSpheres[i].center = Math::Transform(screenPos, viewportMatrix);
-		}
-
-		// 線の描画
-		Shape::DrawLine(drawSpheres[0].center.x, drawSpheres[0].center.y, drawSpheres[1].center.x, drawSpheres[1].center.y, WHITE);
-		Shape::DrawLine(drawSpheres[1].center.x, drawSpheres[1].center.y, drawSpheres[2].center.x, drawSpheres[2].center.y, WHITE);
 
 		///
 		/// ↑描画処理ここまで

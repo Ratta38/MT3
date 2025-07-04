@@ -52,6 +52,10 @@ public:
 	/// <returns>正規化した値</returns>
 	static Vector3 Normalize(const Vector3& v);
 
+	static Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2);
+
+	static Matrix4x4 Subtract(const Matrix4x4& m1, const Matrix4x4& m2);
+
 	/// <summary>
 	/// 行列同士の積を求める
 	/// </summary>

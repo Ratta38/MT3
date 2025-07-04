@@ -52,6 +52,26 @@ Vector3 Math::Normalize(const Vector3& v) {
 	return result;
 }
 
+Matrix4x4 Math::Add(const Matrix4x4& m1, const Matrix4x4& m2) {
+	Matrix4x4 result{};
+	for (int row = 0; row < 4; ++row) {
+		for (int col = 0; col < 4; ++col) {
+			result.m[row][col] = m1.m[row][col] + m2.m[row][col];
+		}
+	}
+	return result;
+}
+
+Matrix4x4 Math::Subtract(const Matrix4x4& m1, const Matrix4x4& m2) {
+	Matrix4x4 result{};
+	for (int row = 0; row < 4; ++row) {
+		for (int col = 0; col < 4; ++col) {
+			result.m[row][col] = m1.m[row][col] - m2.m[row][col];
+		}
+	}
+	return result;
+}
+
 Matrix4x4 Math::Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
 	Matrix4x4 result = {0};
 	for (int i = 0; i < 4; i++) {
@@ -96,7 +116,6 @@ Matrix4x4 Math::MakeRollRotateMatrix(float radian) {
 	result.m[3][3] = 1.0f;
 	return result;
 }
-
 
 Matrix4x4 Math::MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
 	Matrix4x4 result = Multiply(MakePitchRotateMatrix(rotate.x), Multiply(MakeYawRotateMatrix(rotate.y), MakeRollRotateMatrix(rotate.z)));
@@ -232,7 +251,7 @@ Vector3 Math::Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	return result;
 }
 
-Vector3 Math::Cross(const Vector3& v1, const Vector3& v2) { 
+Vector3 Math::Cross(const Vector3& v1, const Vector3& v2) {
 	Vector3 result = {v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x};
 	return result;
 }
@@ -246,7 +265,7 @@ Matrix4x4 Math::MakeOrthographicMatrix(float left, float top, float right, float
 	result.m[3][1] = (top + bottom) / (bottom - top);
 	result.m[3][2] = nearClip / (nearClip - farClip);
 	result.m[3][3] = 1.0f;
-	return result; 
+	return result;
 }
 
 Matrix4x4 Math::MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
@@ -297,7 +316,7 @@ Matrix4x4 Math::MakeViewPortMatrix(float left, float top, float width, float hei
 	return result;
 }
 
-Vector3 Math::Project(const Vector3& v1, const Vector3& v2) { 
+Vector3 Math::Project(const Vector3& v1, const Vector3& v2) {
 	Vector3 result = {};
 	float dot = Math::Dot(v1, v2);
 	float length = Math::Length(v2);
@@ -309,13 +328,13 @@ Vector3 Math::Project(const Vector3& v1, const Vector3& v2) {
 	return result;
 }
 
-Vector3 Math::ClosestPoint(const Vector3& point, const Segment& segment) { 
+Vector3 Math::ClosestPoint(const Vector3& point, const Segment& segment) {
 	Vector3 result = {};
 	result = Add(segment.origin, Project(Subtract(point, segment.origin), segment.diff));
 	return result;
 }
 
-Vector3 Math::Lerp(const Vector3& v1, const Vector3& v2, float t) { 
+Vector3 Math::Lerp(const Vector3& v1, const Vector3& v2, float t) {
 	Vector3 result;
 	result.x = v1.x + (v2.x - v1.x) * t;
 	result.y = v1.y + (v2.y - v1.y) * t;
