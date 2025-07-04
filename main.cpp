@@ -1,5 +1,6 @@
 #include "Ball.h"
 #include "Collision.h"
+#include "ConicalPendulum.h"
 #include "Math.h"
 #include "MathOperator.h"
 #include "Pendulum.h"
@@ -38,12 +39,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sphere.radius = 0.1f;
 
 	// 紐
-	Pendulum pendulum{};
-	pendulum.anchor = {0.0f, 1.0f, 0.0f};
-	pendulum.length = 0.8f;
-	pendulum.angle = 0.7f;
-	pendulum.angularVelocity = 0.0f;
-	pendulum.angularAcceleration = 0.0f;
+	ConicalPendulum conicalPendulum{};
+	conicalPendulum.anchor = {0.0f, 1.0f, 0.0f};
+	conicalPendulum.length = 0.8f;
+	conicalPendulum.halfApexAngle = 0.7f;
+	conicalPendulum.angle = 0.0f;
+	conicalPendulum.angularVelocity = 0.0f;
 
 	float deltaTime = 1.0f / 60.0f;
 
@@ -64,14 +65,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		if (isMove) {
-			pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sinf(pendulum.angle);
-			pendulum.angularVelocity += pendulum.angularAcceleration * deltaTime;
-			pendulum.angle += pendulum.angularVelocity * deltaTime;
+			conicalPendulum.angularVelocity = std::sqrtf(9.8f / (conicalPendulum.length * std::cosf(conicalPendulum.halfApexAngle)));
+			conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
 
-			// pは振り子の先端の位置。取り付けたいものを取り付ければいい
-			sphere.center.x = pendulum.anchor.x + std::sinf(pendulum.angle) * pendulum.length;
-			sphere.center.y = pendulum.anchor.y - std::cosf(pendulum.angle) * pendulum.length;
-			sphere.center.z = pendulum.anchor.z;
+			float radius = std::sinf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
+			float height = std::cosf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
+			sphere.center.x = conicalPendulum.anchor.x + std::cosf(conicalPendulum.angle) * radius;
+			sphere.center.y = conicalPendulum.anchor.y - height;
+			sphere.center.z = conicalPendulum.anchor.z - std::sinf(conicalPendulum.angle) * radius;
 		}
 
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
@@ -98,7 +99,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			isMove = false;
 		}
 
-		ImGui::DragFloat3("pendulum.anchor", &pendulum.anchor.x, 0.01f);
+		ImGui::DragFloat3("pendulum.anchor", &conicalPendulum.anchor.x, 0.01f);
 		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.01f);
 
 		ImGui::End();
@@ -117,7 +118,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
 		// 紐
-		Vector3 pendulumAnchorScreen = Math::Transform(Math::Transform(pendulum.anchor, worldViewProjectionMatrix), viewportMatrix);
+		Vector3 pendulumAnchorScreen = Math::Transform(Math::Transform(conicalPendulum.anchor, worldViewProjectionMatrix), viewportMatrix);
 		Vector3 sphereCenterScreen = Math::Transform(Math::Transform(sphere.center, worldViewProjectionMatrix), viewportMatrix);
 		Shape::DrawLine(pendulumAnchorScreen.x, pendulumAnchorScreen.y, sphereCenterScreen.x, sphereCenterScreen.y, WHITE);
 
