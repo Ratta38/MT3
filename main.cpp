@@ -9,6 +9,7 @@
 #include "Spring.h"
 #include "Ball.h"
 #include <Novice.h>
+#include <cmath>
 #include <imgui.h>
 #undef min
 #undef max
@@ -27,29 +28,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = {0};
 
 	// カメラ
-	Vector3 cameraTranslate = {0.0f, 10.0f, -6.5f};
-	Vector3 cameraRotate = {1.0f, 0.0f, 0.0f};
+	Vector3 cameraTranslate = {0.0f, 4.5f, -6.5f};
+	Vector3 cameraRotate = {0.6f, 0.0f, 0.0f};
 
-	// バネ
-	Spring spring{};
-	spring.anchor = {0.0f, 0.0f, 0.0f};
-	spring.naturalLength = 1.0f;
-	spring.stiffness = 100.0f;
-	spring.dampingCoefficient = 2.0f;
-
-	// ボール
-	Ball ball{};
-	ball.position = {1.2f, 0.0f, 0.0f};
-	ball.mass = 2.0f;
-	ball.radius = 0.05f;
-	ball.color = BLUE;
-
-	// 描画用Sphere
+	// 動く円
 	Sphere sphere{};
-	sphere.center = ball.position;
-	sphere.radius = ball.radius;
+	sphere.center = {5.0f,0.0f,0.0f};
+	sphere.radius = 0.1f;
+
+	// 中心の円
+	Sphere centerSphere{};
+	centerSphere.center = {0.0f, 0.0f, 0.0f};
+	centerSphere.radius = 0.8f;
+
+	float angularVelocity = 3.14f;
+	float angle = 0.0f;
 
 	float deltaTime = 1.0f / 60.0f;
+
+	// 球の動きを制御する変数
+	bool isMove = false;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -64,24 +62,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		Vector3 diff = ball.position - spring.anchor;
-		float length = Math::Length(diff);
-		if (length != 0.0f) {
-			Vector3 direction = Math::Normalize(diff);
-			Vector3 restPosition = spring.anchor + direction * spring.naturalLength;
-			Vector3 displacement = length * (ball.position - restPosition);
-			Vector3 restoringForce = -spring.stiffness * displacement;
-			Vector3 dampingForce = -spring.dampingCoefficient * ball.velocity;
-			Vector3 force = restoringForce + dampingForce;
-			ball.acceleration = force / ball.mass;
+		if (isMove) {
+			// 角速度の加算
+			angle += angularVelocity * deltaTime;
+
+			// 円運動
+			sphere.center.x = centerSphere.center.x + std::cosf(angle) * centerSphere.radius;
+			sphere.center.y = centerSphere.center.y + std::sinf(angle) * centerSphere.radius;
+			sphere.center.z = centerSphere.center.z;
 		}
-
-		//加速度も速度もどちらも秒を基準とした値である
-		// それが、1/60秒関(deltaTime)適用されたと考える
-		ball.velocity += ball.acceleration * deltaTime;
-		ball.position += ball.velocity * deltaTime;
-
-		sphere.center = ball.position;
 
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
 		Matrix4x4 cameraMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
@@ -99,7 +88,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
 		
-		ImGui::DragFloat3("ball.position", &ball.position.x, 0.01f);
+		if (ImGui::Button("Start")) {
+			isMove = true;
+		}
+
+		if (ImGui::Button("Stop")) {
+			isMove = false;
+		}
+
+		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.01f);
+		ImGui::DragFloat3("sphere.center", &centerSphere.center.x, 0.01f);
 
 		ImGui::End();
 
@@ -116,13 +114,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッド
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
-		// バネ
-		Vector3 springAnchorScreen = Math::Transform(Math::Transform(spring.anchor, worldViewProjectionMatrix), viewportMatrix);
-		Vector3 sphereCenterScreen = Math::Transform(Math::Transform(sphere.center, worldViewProjectionMatrix), viewportMatrix);
-		Shape::DrawLine(springAnchorScreen.x, springAnchorScreen.y, sphereCenterScreen.x, sphereCenterScreen.y, WHITE);
-
 		// ボール
-		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, ball.color);
+		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
