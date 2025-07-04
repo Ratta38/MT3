@@ -1,13 +1,14 @@
+#include "Ball.h"
 #include "Collision.h"
 #include "Math.h"
 #include "MathOperator.h"
+#include "Pendulum.h"
 #include "Plane.h"
 #include "Shape.h"
 #include "Sphere.h"
+#include "Spring.h"
 #include "Vector3.h"
 #include "WindowSize.h"
-#include "Spring.h"
-#include "Ball.h"
 #include <Novice.h>
 #include <cmath>
 #include <imgui.h>
@@ -31,18 +32,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = {0.0f, 4.5f, -6.5f};
 	Vector3 cameraRotate = {0.6f, 0.0f, 0.0f};
 
-	// 動く円
+	// 球
 	Sphere sphere{};
-	sphere.center = {5.0f,0.0f,0.0f};
+	sphere.center = {0.0f, 1.0f, 0.0f};
 	sphere.radius = 0.1f;
 
-	// 中心の円
-	Sphere centerSphere{};
-	centerSphere.center = {0.0f, 0.0f, 0.0f};
-	centerSphere.radius = 0.8f;
-
-	float angularVelocity = 3.14f;
-	float angle = 0.0f;
+	// 紐
+	Pendulum pendulum{};
+	pendulum.anchor = {0.0f, 1.0f, 0.0f};
+	pendulum.length = 0.8f;
+	pendulum.angle = 0.7f;
+	pendulum.angularVelocity = 0.0f;
+	pendulum.angularAcceleration = 0.0f;
 
 	float deltaTime = 1.0f / 60.0f;
 
@@ -63,13 +64,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		if (isMove) {
-			// 角速度の加算
-			angle += angularVelocity * deltaTime;
+			pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sinf(pendulum.angle);
+			pendulum.angularVelocity += pendulum.angularAcceleration * deltaTime;
+			pendulum.angle += pendulum.angularVelocity * deltaTime;
 
-			// 円運動
-			sphere.center.x = centerSphere.center.x + std::cosf(angle) * centerSphere.radius;
-			sphere.center.y = centerSphere.center.y + std::sinf(angle) * centerSphere.radius;
-			sphere.center.z = centerSphere.center.z;
+			// pは振り子の先端の位置。取り付けたいものを取り付ければいい
+			sphere.center.x = pendulum.anchor.x + std::sinf(pendulum.angle) * pendulum.length;
+			sphere.center.y = pendulum.anchor.y - std::cosf(pendulum.angle) * pendulum.length;
+			sphere.center.z = pendulum.anchor.z;
 		}
 
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
@@ -87,7 +89,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
-		
+
 		if (ImGui::Button("Start")) {
 			isMove = true;
 		}
@@ -96,8 +98,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			isMove = false;
 		}
 
+		ImGui::DragFloat3("pendulum.anchor", &pendulum.anchor.x, 0.01f);
 		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.01f);
-		ImGui::DragFloat3("sphere.center", &centerSphere.center.x, 0.01f);
 
 		ImGui::End();
 
@@ -113,6 +115,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// グリッド
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
+
+		// 紐
+		Vector3 pendulumAnchorScreen = Math::Transform(Math::Transform(pendulum.anchor, worldViewProjectionMatrix), viewportMatrix);
+		Vector3 sphereCenterScreen = Math::Transform(Math::Transform(sphere.center, worldViewProjectionMatrix), viewportMatrix);
+		Shape::DrawLine(pendulumAnchorScreen.x, pendulumAnchorScreen.y, sphereCenterScreen.x, sphereCenterScreen.y, WHITE);
 
 		// ボール
 		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, WHITE);
