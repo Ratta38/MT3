@@ -4,6 +4,7 @@
 #include "Segment.h"
 #include "Sphere.h"
 #include "Triangle.h"
+#include "Capsule.h"
 namespace Collision {
 
 // 汎用テンプレート
@@ -19,4 +20,5 @@ bool Intersect(const Triangle& triangle, const Segment& segment);
 bool Intersect(const AABB& aabb1, const AABB& aabb2);
 bool Intersect(const AABB& aabb, const Sphere& sphere);
 bool Intersect(const AABB& aabb, const Segment& segment);
+bool Intersect(const Capsule& capsule, const Plane& plane);
 }; // namespace Collision

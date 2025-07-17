@@ -149,3 +149,16 @@ bool Collision::Intersect(const AABB& aabb, const Segment& segment) {
 
 	return false;
 }
+
+bool Collision::Intersect(const Capsule& capsule, const Plane& plane) { 
+	// カプセルの両端点との距離をチェック
+	float d0 = Math::Dot(plane.normal, capsule.segment.origin) - plane.distance;
+	float d1 = Math::Dot(plane.normal, capsule.segment.diff) - plane.distance;
+
+	// 両端が平面の反対側にある。または距離が半径以内なら交差
+	if ((d0 < capsule.radius && d1 > -capsule.radius) || (d0 > -capsule.radius && d1 < capsule.radius)) {
+		return true;
+	}
+
+	return false; 
+}

@@ -2,6 +2,8 @@
 #include "Matrix4x4.h"
 #include "Vector3.h"
 #include "Segment.h"
+#include "Capsule.h"
+#include "Sphere.h"
 class Math {
 public:
 	Math();
@@ -156,4 +158,10 @@ public:
 	static Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
 
 	static Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t);
+
+	static Vector3 Reflect(const Vector3& input, const Vector3& normal);
+
+	static Vector3 Multiply(const Vector3& v1, const Vector3& v2);
+
+	static bool CapsuleCollision(const Sphere& sphere, const Capsule& capsule);
 };

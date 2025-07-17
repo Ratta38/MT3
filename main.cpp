@@ -10,6 +10,7 @@
 #include "Spring.h"
 #include "Vector3.h"
 #include "WindowSize.h"
+#include "Capsule.h"
 #include <Novice.h>
 #include <cmath>
 #include <imgui.h>
@@ -33,22 +34,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraTranslate = {0.0f, 4.5f, -6.5f};
 	Vector3 cameraRotate = {0.6f, 0.0f, 0.0f};
 
-	// 球
-	Sphere sphere{};
-	sphere.center = {0.0f, 1.0f, 0.0f};
-	sphere.radius = 0.1f;
+	// Plane
+	Plane plane{};
+	plane.normal = Math::Normalize({-0.2f, 0.9f, -0.3f});
+	plane.distance = 0.0f;
 
-	// 紐
-	ConicalPendulum conicalPendulum{};
-	conicalPendulum.anchor = {0.0f, 1.0f, 0.0f};
-	conicalPendulum.length = 0.8f;
-	conicalPendulum.halfApexAngle = 0.7f;
-	conicalPendulum.angle = 0.0f;
-	conicalPendulum.angularVelocity = 0.0f;
+	// Ball
+	Ball ball{};
+	ball.position = {0.8f, 1.2f, 0.3f};
+	ball.velocity = 0.0f;
+	ball.mass = 2.0f;
+	ball.radius = 0.05f;
+	ball.color = WHITE;
+	ball.acceleration = {0.0f, -9.8f, 0.0f};
+
+	// 描画用球
+	Sphere sphere{};
+	sphere.center = ball.position;
+	sphere.radius = ball.radius;
+
+	// Capsule
+	Capsule capsule{};
 
 	float deltaTime = 1.0f / 60.0f;
 
-	// 球の動きを制御する変数
+	const float e = 0.6f; // 反発係数 
+
 	bool isMove = false;
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -65,14 +76,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		if (isMove) {
-			conicalPendulum.angularVelocity = std::sqrtf(9.8f / (conicalPendulum.length * std::cosf(conicalPendulum.halfApexAngle)));
-			conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
 
-			float radius = std::sinf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
-			float height = std::cosf(conicalPendulum.halfApexAngle) * conicalPendulum.length;
-			sphere.center.x = conicalPendulum.anchor.x + std::cosf(conicalPendulum.angle) * radius;
-			sphere.center.y = conicalPendulum.anchor.y - height;
-			sphere.center.z = conicalPendulum.anchor.z - std::sinf(conicalPendulum.angle) * radius;
+			// ボールの前の位置を保存
+			Vector3 prePosition = ball.position;
+
+			// 物理更新
+			ball.velocity += ball.acceleration * deltaTime;
+			ball.position += ball.velocity * deltaTime;
+
+			// カプセル
+			capsule.segment.origin = prePosition;
+			capsule.segment.diff = ball.position;
+			capsule.radius = ball.radius;
+
+			if (Collision::Intersect(capsule, plane)) {
+				Vector3 reflected = Math::Reflect(ball.velocity, plane.normal);
+				Vector3 projectToNormal = Math::Project(reflected, plane.normal);
+				Vector3 movingDirection = reflected - projectToNormal;
+				ball.velocity = projectToNormal * e + movingDirection;
+
+				// ボールがめり込んだままにならないように平面上に補正
+				float penetration = ball.radius - Math::Dot(plane.normal, ball.position) + plane.distance;
+				ball.position += plane.normal * penetration;
+			}
+
+			// 描画用の球に反映
+			sphere.center = ball.position;
+		}
+
+		// リトライ用
+		if (keys[DIK_R]) {
+			ball.position = {0.8f, 1.2f, 0.3f};
+			ball.velocity = 0.0f;
 		}
 
 		Matrix4x4 worldMatrix = Math::MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
@@ -88,9 +123,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #ifdef _DEBUG
 		ImGui::Begin("Window");
 
-		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
-		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
-
 		if (ImGui::Button("Start")) {
 			isMove = true;
 		}
@@ -99,8 +131,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			isMove = false;
 		}
 
-		ImGui::DragFloat3("pendulum.anchor", &conicalPendulum.anchor.x, 0.01f);
-		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.01f);
+		ImGui::DragFloat3("camera.translate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("camera.rotate", &cameraRotate.x, 0.01f);
+
+		ImGui::DragFloat3("ball.position", &ball.position.x, 0.01f);
+		ImGui::DragFloat3("ball.acceleration", &ball.acceleration.x, 0.01f);
+		ImGui::DragFloat3("ball.velocity", &ball.velocity.x, 0.01f);
+		ImGui::DragFloat3("plane.normal", &plane.normal.x, 0.01f);
 
 		ImGui::End();
 
@@ -117,13 +154,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// グリッド
 		Shape::DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
-		// 紐
-		Vector3 pendulumAnchorScreen = Math::Transform(Math::Transform(conicalPendulum.anchor, worldViewProjectionMatrix), viewportMatrix);
-		Vector3 sphereCenterScreen = Math::Transform(Math::Transform(sphere.center, worldViewProjectionMatrix), viewportMatrix);
-		Shape::DrawLine(pendulumAnchorScreen.x, pendulumAnchorScreen.y, sphereCenterScreen.x, sphereCenterScreen.y, WHITE);
+		// 平面
+		Shape::DrawPlane(plane, worldViewProjectionMatrix, viewportMatrix, WHITE);
 
 		// ボール
-		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, WHITE);
+		Shape::DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, ball.color);
 
 		///
 		/// ↑描画処理ここまで

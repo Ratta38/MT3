@@ -5,6 +5,7 @@
 
 inline Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Math::Add(v1, v2); }
 inline Vector3 operator-(const Vector3& v1, const Vector3& v2) { return Math::Subtract(v1, v2); }
+inline Vector3 operator*(const Vector3& v1, const Vector3& v2) { return Math::Multiply(v1, v2); }
 inline Vector3 operator*(float s, const Vector3& v) { return Math::Multiply(s, v); }
 inline Vector3 operator*(const Vector3& v, float s) { return s * v; }
 inline Vector3 operator/(const Vector3& v, float s) { return Math::Multiply(1.0f / s, v); }

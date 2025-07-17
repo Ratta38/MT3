@@ -1,6 +1,7 @@
 ﻿#include "Math.h"
 #include <assert.h>
 #include <cmath>
+#include <algorithm>
 Math::Math() {}
 
 Vector3 Math::Add(const Vector3& v1, const Vector3& v2) {
@@ -341,4 +342,40 @@ Vector3 Math::Lerp(const Vector3& v1, const Vector3& v2, float t) {
 	result.z = v1.z + (v2.z - v1.z) * t;
 
 	return result;
+}
+
+Vector3 Math::Reflect(const Vector3& input, const Vector3& normal) { 
+	float dotValue = Dot(input, normal);
+	Vector3 projection = Multiply(2.0f * dotValue, normal);
+	return Subtract(input, projection);
+}
+
+Vector3 Math::Multiply(const Vector3& v1, const Vector3& v2) { 
+	Vector3 result;
+	result.x = v1.x * v2.x;
+	result.y = v1.y * v2.y;
+	result.z = v1.z * v2.z;
+
+	return result; 
+}
+
+bool Math::CapsuleCollision(const Sphere& sphere, const Capsule& capsule) {
+	Vector3 sphereToCapsuleOrigin = Subtract(sphere.center, capsule.segment.origin);
+	Vector3 capsuleAxis = Subtract(capsule.segment.diff, capsule.segment.origin);
+
+	// カプセル軸を正規化
+	Vector3 capsuleDirection = Normalize(capsuleAxis);
+
+	// 球の中心をカプセル軸に投影した割合（0〜1）
+	float projectionRatio = Dot(sphereToCapsuleOrigin, capsuleDirection) / Length(capsuleAxis);
+	projectionRatio = std::clamp(projectionRatio, 0.0f, 1.0f);
+
+	// 線形補間により、カプセル軸上の最近接点を取得
+	Vector3 closestPointOnCapsule = Add(Multiply(1.0f - projectionRatio, capsule.segment.origin), Multiply(projectionRatio, capsule.segment.diff));
+
+	// 球の中心との距離を計算
+	float centerDistance = Length(Subtract(sphere.center, closestPointOnCapsule));
+
+	// 合計半径以下なら衝突していると判定
+	return centerDistance < (sphere.radius + capsule.radius);
 }
