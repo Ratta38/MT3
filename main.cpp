@@ -51,11 +51,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		
 
-#ifdef _DEBUG
-		
-
-#endif // _DEBUG
-
 		///
 		/// ↑更新処理ここまで
 		///
