@@ -1,7 +1,8 @@
 ﻿#include "Math.h"
+#include <Novice.h>
+#include <algorithm>
 #include <assert.h>
 #include <cmath>
-#include <algorithm>
 Math::Math() {}
 
 Vector3 Math::Add(const Vector3& v1, const Vector3& v2) {
@@ -344,19 +345,19 @@ Vector3 Math::Lerp(const Vector3& v1, const Vector3& v2, float t) {
 	return result;
 }
 
-Vector3 Math::Reflect(const Vector3& input, const Vector3& normal) { 
+Vector3 Math::Reflect(const Vector3& input, const Vector3& normal) {
 	float dotValue = Dot(input, normal);
 	Vector3 projection = Multiply(2.0f * dotValue, normal);
 	return Subtract(input, projection);
 }
 
-Vector3 Math::Multiply(const Vector3& v1, const Vector3& v2) { 
+Vector3 Math::Multiply(const Vector3& v1, const Vector3& v2) {
 	Vector3 result;
 	result.x = v1.x * v2.x;
 	result.y = v1.y * v2.y;
 	result.z = v1.z * v2.z;
 
-	return result; 
+	return result;
 }
 
 bool Math::CapsuleCollision(const Sphere& sphere, const Capsule& capsule) {
@@ -378,4 +379,47 @@ bool Math::CapsuleCollision(const Sphere& sphere, const Capsule& capsule) {
 
 	// 合計半径以下なら衝突していると判定
 	return centerDistance < (sphere.radius + capsule.radius);
+}
+
+Matrix4x4 Math::MakeRotateAxisAngle(const Vector3& axis, float angle) {
+	float x = axis.x;
+	float y = axis.y;
+	float z = axis.z;
+
+	float c = cosf(angle); // cosθ
+	float s = sinf(angle); // sinθ
+	float t = 1.0f - c;    // 1 - cosθ
+
+	Matrix4x4 result{};
+
+	result.m[0][0] = t * x * x + c;
+	result.m[0][1] = t * x * y + s * z;
+	result.m[0][2] = t * x * z - s * y;
+	result.m[0][3] = 0.0f;
+
+	result.m[1][0] = t * x * y - s * z;
+	result.m[1][1] = t * y * y + c;
+	result.m[1][2] = t * y * z + s * x;
+	result.m[1][3] = 0.0f;
+
+	result.m[2][0] = t * x * z + s * y;
+	result.m[2][1] = t * y * z - s * x;
+	result.m[2][2] = t * z * z + c;
+	result.m[2][3] = 0.0f;
+
+	result.m[3][0] = 0.0f;
+	result.m[3][1] = 0.0f;
+	result.m[3][2] = 0.0f;
+	result.m[3][3] = 1.0f;
+
+	return result;
+}
+
+void Math::MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
+	Novice::ScreenPrintf(x, y, "%s", label);
+	for (int row = 0; row < 4; ++row) {
+		for (int column = 0; column < 4; ++column) {
+			Novice::ScreenPrintf(x + column * 60, y + row * 20 + 20, "%6.03f", matrix.m[row][column]);
+		}
+	}
 }

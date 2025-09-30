@@ -164,4 +164,15 @@ public:
 	static Vector3 Multiply(const Vector3& v1, const Vector3& v2);
 
 	static bool CapsuleCollision(const Sphere& sphere, const Capsule& capsule);
+
+	static Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle);
+
+	/// <summary>
+	/// 行列の値を表示
+	/// </summary>
+	/// <param name="x">座標 X</param>
+	/// <param name="y">座標 Y</param>
+	/// <param name="matrix">行列</param>
+	/// <param name="label">関数名</param>
+	static void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label);
 };
