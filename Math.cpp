@@ -423,3 +423,71 @@ void Math::MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char*
 		}
 	}
 }
+
+Matrix4x4 Math::DirectionToDirection(const Vector3& from, const Vector3& to) {
+	float cosTheta = Dot(from, to);
+
+	// 同じ方向の場合
+	if (cosTheta >= 1.0f) {
+		return Math::MakeIdentity4x4();
+	}
+
+	// 真逆の場合
+	if (cosTheta <= -1.0f) {
+		// fromに直交する軸を適当に選ぶ
+		Vector3 ortho = (fabsf(from.x) > fabsf(from.z)) ? Vector3{-from.y, from.x, 0.0f} : Vector3{0.0f, -from.z, from.y};
+		Vector3 axis = Normalize(ortho);
+
+		// 180度回転
+		float x = axis.x, y = axis.y, z = axis.z;
+		float sinTheta = 0.0f;
+		float tVal = 1.0f - cosTheta;
+
+		Matrix4x4 result{};
+		result.m[0][0] = tVal * x * x + cosTheta;
+		result.m[0][1] = tVal * x * y + sinTheta * z;
+		result.m[0][2] = tVal * x * z - sinTheta * y;
+
+		result.m[1][0] = tVal * x * y - sinTheta * z;
+		result.m[1][1] = tVal * y * y + cosTheta;
+		result.m[1][2] = tVal * y * z + sinTheta * x;
+
+		result.m[2][0] = tVal * x * z + sinTheta * y;
+		result.m[2][1] = tVal * y * z - sinTheta * x;
+		result.m[2][2] = tVal * z * z + cosTheta;
+
+		result.m[3][3] = 1.0f;
+		return result;
+	}
+
+	// 通常
+	Vector3 axis = Normalize(Cross(from, to));
+	float sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
+	float x = axis.x, y = axis.y, z = axis.z;
+	float tVal = 1.0f - cosTheta;
+
+	Matrix4x4 result{};
+	result.m[0][0] = tVal * x * x + cosTheta;
+	result.m[0][1] = tVal * x * y + sinTheta * z;
+	result.m[0][2] = tVal * x * z - sinTheta * y;
+
+	result.m[1][0] = tVal * x * y - sinTheta * z;
+	result.m[1][1] = tVal * y * y + cosTheta;
+	result.m[1][2] = tVal * y * z + sinTheta * x;
+
+	result.m[2][0] = tVal * x * z + sinTheta * y;
+	result.m[2][1] = tVal * y * z - sinTheta * x;
+	result.m[2][2] = tVal * z * z + cosTheta;
+
+	result.m[3][3] = 1.0f;
+
+	return result;
+}
+
+Matrix4x4 Math::MakeIdentity4x4() {
+	Matrix4x4 result = {};
+	for (int i = 0; i < 4; ++i) {
+		result.m[i][i] = 1;
+	}
+	return result;
+}

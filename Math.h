@@ -175,4 +175,8 @@ public:
 	/// <param name="matrix">行列</param>
 	/// <param name="label">関数名</param>
 	static void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label);
+
+	static Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
+
+	static Matrix4x4 MakeIdentity4x4();
 };

@@ -30,11 +30,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	Vector3 axis = Math::Normalize({1.0f, 1.0f, 1.0f});
+	Vector3 from0 = Math::Normalize({1.0f, 0.7f, 0.5f});
 
-	float angle = 0.44f;
+	Vector3 to0 = -from0;
 
-	Matrix4x4 rotateMatrix = Math::MakeRotateAxisAngle(axis, angle);
+	Vector3 from1 = Math::Normalize({-0.6f, 0.9f, 0.2f});
+
+	Vector3 to1 = Math::Normalize({0.4f, 0.7f, -0.5f});
+
+	Matrix4x4 rotateMatrix0 = Math::DirectionToDirection(Math::Normalize({1.0f, 0.0f, 0.0f}), Math::Normalize({-1.0f, 0.0f, 0.0f}));
+
+	Matrix4x4 rotateMatrix1 = Math::DirectionToDirection(from0, to0);
+
+	Matrix4x4 rotateMatrix2 = Math::DirectionToDirection(from1, to1);
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -60,7 +68,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// 行列の表示
-		Math::MatrixScreenPrintf(0, 0, rotateMatrix, "rotateMatrix");
+		Math::MatrixScreenPrintf(0, 0, rotateMatrix0, "rotateMatrix0");
+		Math::MatrixScreenPrintf(0, 100, rotateMatrix1, "rotateMatrix1");
+		Math::MatrixScreenPrintf(0, 200, rotateMatrix2, "rotateMatrix2");
 
 		///
 		/// ↑描画処理ここまで
