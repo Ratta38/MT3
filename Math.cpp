@@ -491,3 +491,51 @@ Matrix4x4 Math::MakeIdentity4x4() {
 	}
 	return result;
 }
+
+Quaternion Math::Multiply(const Quaternion& lhs, const Quaternion& rhs) {
+	return Quaternion(
+	    lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y, lhs.w * rhs.y - lhs.x * rhs.z + lhs.y * rhs.w + lhs.z * rhs.x, lhs.w * rhs.z + lhs.x * rhs.y - lhs.y * rhs.x + lhs.z * rhs.w,
+	    lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z);
+}
+
+Quaternion Math::IdentityQuaternion() { return Quaternion(0.0f, 0.0f, 0.0f, 1.0f); }
+
+Quaternion Math::Conjugate(const Quaternion& quaternion) { return Quaternion(-quaternion.x, -quaternion.y, -quaternion.z, quaternion.w); }
+
+float Math::Norm(const Quaternion& quaternion) {
+	Quaternion q = quaternion;
+
+	return std::sqrtf(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+}
+
+Quaternion Math::Normalize(const Quaternion& quaternion) {
+	Quaternion q = quaternion;
+
+	float n = Norm(q);
+
+	if (n == 0.0f)
+		return IdentityQuaternion(); // ゼロ除算防止
+
+	return Quaternion(q.x / n, q.y / n, q.z / n, q.w / n);
+}
+
+Quaternion Math::Inverse(const Quaternion& quaternion) {
+	Quaternion q = quaternion;
+
+	float normSq = q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+
+	if (normSq == 0.0f)
+		return Quaternion(0.0f, 0.0f, 0.0f, 0.0f); // ゼロ除算防止
+
+	Quaternion conj = Conjugate(q);
+
+	return Quaternion(conj.x / normSq, conj.y / normSq, conj.z / normSq, conj.w / normSq);
+}
+
+void Math::QuaternionPrint(int x, int y, Quaternion quaternion, const char* label) {
+	Novice::ScreenPrintf(x, y, "%6.02f", quaternion.x);
+	Novice::ScreenPrintf(x + 60, y, "%6.02f", quaternion.y);
+	Novice::ScreenPrintf(x + 120, y, "%6.02f", quaternion.z);
+	Novice::ScreenPrintf(x + 180, y, "%6.02f", quaternion.w);
+	Novice::ScreenPrintf(x + 240, y, label);
+}

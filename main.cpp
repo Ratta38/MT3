@@ -1,4 +1,5 @@
 #include "Ball.h"
+#include "Capsule.h"
 #include "Collision.h"
 #include "ConicalPendulum.h"
 #include "Math.h"
@@ -10,7 +11,6 @@
 #include "Spring.h"
 #include "Vector3.h"
 #include "WindowSize.h"
-#include "Capsule.h"
 #include <Novice.h>
 #include <cmath>
 #include <imgui.h>
@@ -30,19 +30,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	Vector3 from0 = Math::Normalize({1.0f, 0.7f, 0.5f});
-
-	Vector3 to0 = -from0;
-
-	Vector3 from1 = Math::Normalize({-0.6f, 0.9f, 0.2f});
-
-	Vector3 to1 = Math::Normalize({0.4f, 0.7f, -0.5f});
-
-	Matrix4x4 rotateMatrix0 = Math::DirectionToDirection(Math::Normalize({1.0f, 0.0f, 0.0f}), Math::Normalize({-1.0f, 0.0f, 0.0f}));
-
-	Matrix4x4 rotateMatrix1 = Math::DirectionToDirection(from0, to0);
-
-	Matrix4x4 rotateMatrix2 = Math::DirectionToDirection(from1, to1);
+	Quaternion q1 = {2.0f, 3.0f, 4.0f, 1.0f};
+	Quaternion q2 = {1.0f, 3.0f, 5.0f, 2.0f};
+	Quaternion identity = Math::IdentityQuaternion();
+	Quaternion conj = Math::Conjugate(q1);
+	Quaternion inv = Math::Inverse(q1);
+	Quaternion normal = Math::Normalize(q1);
+	Quaternion mul1 = Math::Multiply(q1, q2);
+	Quaternion mul2 = Math::Multiply(q2, q1);
+	float norm = Math::Norm(q1);
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -57,8 +53,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		
-
 		///
 		/// ↑更新処理ここまで
 		///
@@ -67,10 +61,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		// 行列の表示
-		Math::MatrixScreenPrintf(0, 0, rotateMatrix0, "rotateMatrix0");
-		Math::MatrixScreenPrintf(0, 100, rotateMatrix1, "rotateMatrix1");
-		Math::MatrixScreenPrintf(0, 200, rotateMatrix2, "rotateMatrix2");
+		// 結果の表示
+		Math::QuaternionPrint(0, 0, identity, ": Identity");
+		Math::QuaternionPrint(0, 20, conj, ": Conjugate");
+		Math::QuaternionPrint(0, 40, inv, ": Inverse");
+		Math::QuaternionPrint(0, 60, normal, ": Normalize");
+		Math::QuaternionPrint(0, 80, mul1, ": Multiply(q1, q2)");
+		Math::QuaternionPrint(0, 100, mul2, ": Multiply(q2, q1)");
+		Novice::ScreenPrintf(0, 120, "%6.02f", norm);
+		Novice::ScreenPrintf(240, 120, ": Norm");
 
 		///
 		/// ↑描画処理ここまで

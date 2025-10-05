@@ -4,6 +4,7 @@
 #include "Segment.h"
 #include "Capsule.h"
 #include "Sphere.h"
+#include "Quaternion.h"
 class Math {
 public:
 	Math();
@@ -179,4 +180,24 @@ public:
 	static Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
 
 	static Matrix4x4 MakeIdentity4x4();
+
+	// Quaternionの積
+	static Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs);
+
+	// 単位Quaternionを返す
+	static Quaternion IdentityQuaternion();
+
+	// 共役Quaternionを返す
+	static Quaternion Conjugate(const Quaternion& quaternion);
+
+	// QuaternionのNormを返す
+	static float Norm(const Quaternion& quaternion);
+
+	// 正規化したQuaternionを返す
+	static Quaternion Normalize(const Quaternion& quaternion);
+
+	// 逆Quaternionを返す
+	static Quaternion Inverse(const Quaternion& quaternion);
+
+	static void QuaternionPrint(int x, int y, Quaternion quaternion, const char* label);
 };
