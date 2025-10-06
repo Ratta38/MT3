@@ -30,15 +30,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	Quaternion q1 = {2.0f, 3.0f, 4.0f, 1.0f};
-	Quaternion q2 = {1.0f, 3.0f, 5.0f, 2.0f};
-	Quaternion identity = Math::IdentityQuaternion();
-	Quaternion conj = Math::Conjugate(q1);
-	Quaternion inv = Math::Inverse(q1);
-	Quaternion normal = Math::Normalize(q1);
-	Quaternion mul1 = Math::Multiply(q1, q2);
-	Quaternion mul2 = Math::Multiply(q2, q1);
-	float norm = Math::Norm(q1);
+	Quaternion rotation = Math::MakeRotateAxisAngleQuaternion(Math::Normalize(Vector3{1.0f, 0.4f, -0.2f}), 0.45f);
+	Vector3 pointY = {2.1f, -0.9f, 1.3f};
+	Matrix4x4 rotateMatrix = Math::MakeRotateMatrix(rotation);
+	Vector3 rotateByQuaternion = Math::RotateVector(pointY, rotation);
+	Vector3 rotateByMatrix = Math::Transform(pointY, rotateMatrix);
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -62,14 +58,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// 結果の表示
-		Math::QuaternionPrint(0, 0, identity, ": Identity");
-		Math::QuaternionPrint(0, 20, conj, ": Conjugate");
-		Math::QuaternionPrint(0, 40, inv, ": Inverse");
-		Math::QuaternionPrint(0, 60, normal, ": Normalize");
-		Math::QuaternionPrint(0, 80, mul1, ": Multiply(q1, q2)");
-		Math::QuaternionPrint(0, 100, mul2, ": Multiply(q2, q1)");
-		Novice::ScreenPrintf(0, 120, "%6.02f", norm);
-		Novice::ScreenPrintf(240, 120, ": Norm");
+		Math::QuaternionPrint(0, 0, rotation, " : rotation");
+		Math::MatrixScreenPrintf(0, 20, rotateMatrix, "rotateMatrix");
+		Math::VectorScreenPrint(0, 120, rotateByQuaternion, " : rotateByQuaternion");
+		Math::VectorScreenPrint(0, 140, rotateByMatrix, " : rotateByMatrix");
 
 		///
 		/// ↑描画処理ここまで

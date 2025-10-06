@@ -539,3 +539,68 @@ void Math::QuaternionPrint(int x, int y, Quaternion quaternion, const char* labe
 	Novice::ScreenPrintf(x + 180, y, "%6.02f", quaternion.w);
 	Novice::ScreenPrintf(x + 240, y, label);
 }
+
+Quaternion Math::MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle) {
+	Quaternion result{};
+
+	float cosHalf = std::cosf(angle * 0.5f);
+	float sinHalf = std::sinf(angle * 0.5f);
+
+	result.x = sinHalf * axis.x;
+	result.y = sinHalf * axis.y;
+	result.z = sinHalf * axis.z;
+	result.w = cosHalf;
+
+	return result; 
+}
+
+Vector3 Math::RotateVector(const Vector3& vector, const Quaternion quaternion) {
+	Vector3 result{};
+
+	Quaternion vQuaternion = {vector.x, vector.y, vector.z, 0.0f};
+
+	Quaternion qInverse = Inverse(quaternion);
+
+	Quaternion rotateQuaternion = Math::Multiply(Math::Multiply(quaternion, vQuaternion), qInverse);
+
+	result.x = rotateQuaternion.x;
+	result.y = rotateQuaternion.y;
+	result.z = rotateQuaternion.z;
+
+	return result; 
+}
+
+Matrix4x4 Math::MakeRotateMatrix(const Quaternion& quaternion) {
+	Quaternion q = quaternion;
+
+	Matrix4x4 result{};
+
+	result.m[0][0] = q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z;
+	result.m[0][1] = 2.0f * (q.x * q.y + q.w * q.z);
+	result.m[0][2] = 2.0f * (q.x * q.z - q.w * q.y);
+	result.m[0][3] = 0.0f;
+
+	result.m[1][0] = 2.0f * (q.x * q.y - q.w * q.z);
+	result.m[1][1] = q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z;
+	result.m[1][2] = 2.0f * (q.y * q.z + q.w * q.x);
+	result.m[1][3] = 0.0f;
+
+	result.m[2][0] = 2.0f * (q.x * q.z + q.w * q.y);
+	result.m[2][1] = 2.0f * (q.y * q.z - q.w * q.x);
+	result.m[2][2] = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
+	result.m[2][3] = 0.0f;
+
+	result.m[3][0] = 0.0f;
+	result.m[3][1] = 0.0f;
+	result.m[3][2] = 0.0f;
+	result.m[3][3] = 1.0f;
+
+	return result; 
+}
+
+void Math::VectorScreenPrint(int x, int y, const Vector3& vector, const char* label) {
+	Novice::ScreenPrintf(x, y, "%6.02f", vector.x);
+	Novice::ScreenPrintf(x + 60, y, "%6.02f", vector.y);
+	Novice::ScreenPrintf(x + 120, y, "%6.02f", vector.z);
+	Novice::ScreenPrintf(x + 180, y, "%s", label); 
+}
