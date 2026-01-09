@@ -5,6 +5,9 @@
 #include "Capsule.h"
 #include "Sphere.h"
 #include "Quaternion.h"
+
+class MathOperator;
+
 class Math {
 public:
 	Math();
@@ -211,4 +214,8 @@ public:
 	static Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion);
 
 	static void VectorScreenPrint(int x, int y, const Vector3& vector, const char* label);
+
+	static Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
+
+	static float Dot(const Quaternion& q1, const Quaternion& q2);
 };

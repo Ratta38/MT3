@@ -1,4 +1,5 @@
 ﻿#include "Math.h"
+#include "MathOperator.h"
 #include <Novice.h>
 #include <algorithm>
 #include <assert.h>
@@ -604,3 +605,36 @@ void Math::VectorScreenPrint(int x, int y, const Vector3& vector, const char* la
 	Novice::ScreenPrintf(x + 120, y, "%6.02f", vector.z);
 	Novice::ScreenPrintf(x + 180, y, "%s", label); 
 }
+
+Quaternion Math::Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
+	// 内積を計算
+	float dot = q0.x * q1.x + q0.y * q1.y + q0.z * q1.z + q0.w * q1.w;
+
+	// 最短経路補間のため、dotが負ならq1を反転
+	Quaternion q1c = q1;
+	if (dot < 0.0f) {
+		dot = -dot;
+		q1c = Quaternion(-q1.x, -q1.y, -q1.z, -q1.w);
+	}
+
+	// 角度が小さい場合はLerpにフォールバック
+	const float DOT_THRESHOLD = 0.9995f;
+	if (dot > DOT_THRESHOLD) {
+		// 線形補間
+		Quaternion result = Quaternion(q0.x + t * (q1c.x - q0.x), q0.y + t * (q1c.y - q0.y), q0.z + t * (q1c.z - q0.z), q0.w + t * (q1c.w - q0.w));
+		return result.Normalized();
+	}
+
+	// θを計算
+	float theta = std::acos(dot);
+	float sinTheta = std::sin(theta);
+
+	float w0 = std::sin((1.0f - t) * theta) / sinTheta;
+	float w1 = std::sin(t * theta) / sinTheta;
+
+	Quaternion result = Quaternion(w0 * q0.x + w1 * q1c.x, w0 * q0.y + w1 * q1c.y, w0 * q0.z + w1 * q1c.z, w0 * q0.w + w1 * q1c.w);
+
+	return result;
+}
+
+float Math::Dot(const Quaternion& q1, const Quaternion& q2) { return q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w; }
